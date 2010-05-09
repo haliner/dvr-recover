@@ -186,6 +186,7 @@ Tested devices:
 ---------------
 
   * Panasonic DMR-EH56
+  * Panasonic DMR-EH57
 
 '''
 
