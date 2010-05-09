@@ -180,6 +180,24 @@ import os.path
 import time
 
 
+class DvrRecoverError(Exception):
+    def __init__(self, msg):
+        self.msg = msg
+
+    def __str__(self):
+        return self.msg
+
+class ExportError(DvrRecoverError):
+    pass
+
+class UnexpectedResultError(DvrRecoverError):
+    pass
+
+class FileReaderError(DvrRecoverError):
+    pass
+
+
+
 class Chunk(object):
     def __init__(self):
         self.block_start = 0
@@ -189,10 +207,113 @@ class Chunk(object):
         self.concat = False
 
 
+class FileReader(object):
+    class FilePart(object):
+        def __init__(self):
+            self.filename = None
+            self.size = None
+
+
+    def __init__(self, filenames):
+        self.parts = []
+        for filename in filenames:
+            part = self.FilePart()
+            part.filename = filename
+            part.size = os.stat(part.filename).st_size
+            self.parts.append(part)
+
+        self.current_file = None
+        self.file = None
+
+
+    def get_size(self):
+        size = 0
+        for part in self.parts:
+            size += part.size
+        return size
+
+
+    def get_index(self, offset):
+        index = 0
+        start = 0
+        for part in self.parts:
+            end = start + part.size
+            if ((offset >= start) and
+                (offset < end)):
+                return index
+            start = end
+            index += 1
+        return None
+
+    def get_offset(self, index):
+        i = 0
+        offset = 0
+        for part in self.parts:
+            if i < index:
+                offset += part.size
+            else:
+                break
+            i += 1
+        return offset
+
+
+    def open(self, index):
+        self.close()
+        if (index >= 0) and (index < len(self.parts)):
+            self.file = open(self.parts[index].filename, 'rb')
+            self.current_file = index
+        else:
+            raise FileReaderError('Index out of range!')
+
+
+    def close(self):
+        if self.file is not None:
+            self.file.close()
+        self.current_file = None
+        self.file = None
+
+
+    def seek(self, offset):
+        index = self.get_index(offset)
+        delta = offset - self.get_offset(index)
+        if self.current_file is None:
+            self.open(index)
+        else:
+            if self.current_file != index:
+                self.open(index)
+        self.file.seek(delta)
+
+
+    def is_eof(self):
+        return (self.file.tell() == self.parts[self.current_file].size)
+
+
+    def next_file(self):
+        if self.current_file + 1 < len(self.parts):
+            self.open(self.current_file + 1)
+        else:
+            self.close()
+    
+
+    def read(self, size):
+        if self.file is None:
+            return ''
+        buf = self.file.read(size)
+        delta = size - len(buf)
+        if delta != 0:
+            if self.is_eof():
+                self.next_file()
+                buf += self.read(delta)
+            else:
+                raise FileReaderError('Incomplete filled buffer without '
+                                      'reaching end of file!')
+        return buf
+
+
 class Main(object):
     def __init__(self):
         self.settings_filename = 'dvr-recover.conf'
-        self.input_filename = None
+        self.input_filenames = []
         self.chunk_filename = None
         self.export_dir = None
         self.blocksize = 2048
@@ -242,7 +363,7 @@ class Main(object):
                 result.append('')
             (key, value) = result
             if key == 'hdd-file':
-                self.input_filename = value
+                self.input_filenames.append(value)
             elif key == 'chunk-file':
                 self.chunk_filename = value
             elif key == 'export-dir':
@@ -280,7 +401,7 @@ class Main(object):
 
     def test_settings(self):
         '''Read, verify and show settings'''
-        print 'input-file:', self.input_filename
+        print 'input-file:', self.input_filenames
         print 'chunk-file:', self.chunk_filename
         print 'export-dir:', self.export_dir
         print 'blocksize:', self.blocksize
@@ -292,7 +413,7 @@ class Main(object):
     def create(self):
         '''Find all chunks in input file and write them to chunk file'''
         class ChunkFactory(object):
-            def __init__(self, main, f):
+            def __init__(self, main, reader):
                 self.chunks = []
                 self.current_block = 0
                 self.clock = 0
@@ -306,10 +427,8 @@ class Main(object):
                 self.min_chunk_size = main.min_chunk_size
                 self.max_gap = main.max_create_gap
 
-                self.input = f
-                self.input.seek(0, 2)
-                self.input_blocks = (self.input.tell() / self.blocksize)
-                self.input.seek(0, 0)
+                self.reader = reader
+                self.input_blocks = int(self.reader.get_size() / self.blocksize)
 
             def check_timer(self):
                 timer_new = time.time()
@@ -439,12 +558,12 @@ class Main(object):
 
             def run(self):
                 self.chunk = None
+                self.reader.seek(0)
                 for self.current_block in xrange(0, self.input_blocks):
-                    buf = self.input.read(self.blocksize)
+                    buf = self.reader.read(self.blocksize)
                     if len(buf) != self.blocksize:
-                        print 'Unexpected result: len(buf) != self.blocksize'
-                        break
-
+                        raise UnexpectedResultError('len(buf) != '
+                                                    'self.blocksize')
                     self.clock = self.mpeg_header(buf)
                     if self.clock is None:
                         self.split()
@@ -462,10 +581,10 @@ class Main(object):
                 self.split()
                 self.finished()
 
-        f = open(self.input_filename, 'rb')
-        cf = ChunkFactory(self, f)
+        reader = FileReader(self.input_filenames)
+        cf = ChunkFactory(self, reader)
         cf.run()
-        f.close()
+        reader.close()
         self.chunks = cf.chunks
         self.save_chunk_list()
 
@@ -544,17 +663,16 @@ class Main(object):
 
     def export(self):
         '''export single chunk or all chunks'''
-        def copy_chunk(inf, outf, chunk):
+        def copy_chunk(reader, outf, chunk):
             '''Copy data from inf to outf with help of chunk information'''
             print 'Chunk start: %i' % chunk.block_start
             print 'Chunk size:  %i' % chunk.block_size
             timer = time.time()
-            inf.seek(chunk.block_start * self.blocksize)
+            reader.seek(chunk.block_start * self.blocksize)
             for i in xrange(0, chunk.block_size):
-                buf = inf.read(self.blocksize)
+                buf = reader.read(self.blocksize)
                 if len(buf) != self.blocksize:
-                    print 'Unexpected result: len(buf) != self.blocksize'
-                    break
+                    raise UnexpectedResultError('len(buf) != self.blocksize')
                 outf.write(buf)
             delta = time.time() - timer
             speed = float(chunk.block_size) / float(delta)
@@ -569,25 +687,25 @@ class Main(object):
             chunk = self.chunks[chunk_index]
             print 'Current chunk: #%i' % chunk_index
             if chunk.concat:
-                print 'Specified chunk should be concatenated to another. ' \
+                raise ExportError(
+                      'Specified chunk should be concatenated to another. ' \
                       'Please specify a starting chunk (concatenate must be ' \
                       'False!).'
-                print 'Abort.'
-                return
+                      )
 
-            inf = open(self.input_filename, 'rb')
+            reader = FileReader(self.input_filenames)
             outf = open(os.path.join(self.export_dir, 'chunk_%04i.mpg' % \
                                   chunk_index), 'wb')
-            copy_chunk(inf, outf, chunk)
+            copy_chunk(reader, outf, chunk)
             for i in xrange(chunk_index + 1, len(self.chunks)):
                 chunk = self.chunks[i]
                 if chunk.concat:
                     print 'Concatenate chunk: #%i' % i
-                    copy_chunk(inf, outf, chunk)
+                    copy_chunk(reader, outf, chunk)
                 else:
                     break;
             outf.close()
-            inf.close()
+            reader.close()
 
         self.load_chunk_list()
 
@@ -602,8 +720,7 @@ class Main(object):
             if (i >= 0) and (i < len(self.chunks)):
                 extract_chunk(i)
             else:
-                print 'Incorrect chunk specified!'
-                print 'Abort.'
+                raise ExportError('Incorrect chunk specified!')
 
 
     def run(self):
