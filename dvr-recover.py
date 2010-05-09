@@ -36,24 +36,27 @@ Option file
 -----------
 
 Before you can use dvr-recover you will have to create an option file. The
-program will look for the file in the current directory and the file should be
-named \"dvr-recover.conf\". The syntax is quite easy, but the parser is also
+program will look for this file in the current directory and the file should be
+named "dvr-recover.conf". The syntax is quite easy, but the parser is also
 very easy and strict, so you should follow the instructions carefully. Every
 option must be in its OWN line. Empty lines, comments or additional whitespaces
 in front or after the option string are NOT allowed. Keys and values are
-seperated by a \"=\". The following keys are supported:
+seperated by a "=". The following keys are supported:
 
   hdd-file=[string]      This options sets the path of the hard disk drive
                          file used as input. You can either use a copy of the
                          block device (created with something like dd or so) or
                          the block device directly (required root privileges).
-                         The file must be readable.
+                         The file must be readable. It's possible to specify
+                         multiple hdd-files, the script will threat them
+                         as one big file. That way you can split the hdd into
+                         smaller pieces.
 
   chunk-file=[string]    Sets the path of the chunk file used as temporary
-                         buffer for the informations of the chunks (position,
+                         buffer for the information of the chunks (position,
                          size, clock timers, etc.). This file must be
-                         writeable, readable and doesn't have to exist for the
-                         first step.
+                         writeable and readable and doesn't have to exist for
+                         the first step.
 
   export-dir=[string]    Defines where the output should be written to. Must
                          match an existing path. Both relative and absolute
@@ -75,7 +78,7 @@ seperated by a \"=\". The following keys are supported:
 
   max-create-gap=[integer]
                          The script will split the stream into two chunks if
-                         it finds two frames where the timecode differs more#
+                         it finds two frames where the timecode differs more
                          than this value. MPEG uses a clock of 90 kHz.
                          So the default value of 90,000 ticks equals one second.
 
@@ -89,12 +92,24 @@ seperated by a \"=\". The following keys are supported:
 Input hdd file
 --------------
 
+You can create eiterh a copy of the hdd or use the hdd directly as input.
+
 Linux:
-  You can create either a copy of the hdd or use the hdd directly as input.
   If you want to copy the hdd (assuming the hdd is /dev/sdb) then you can use
   this dd command: (setting the blocksize to 10MB should increase performance.)
 
     dd if=/dev/sdb if=hddfile bs=10MB
+
+  If you want to use the hdd directly as input, use this as value for hdd-file:
+  (Assuming that the hdd is /dev/sdb.)
+
+    hdd-file=/dev/sdb
+
+Windows:
+  Use a tool to create a copy of the hdd or use this as value for hdd-file:
+  (Replace N with the number of the drive.)
+
+    hdd-file=\\.\PhysicalDriveN
 
 
 Chunk file:
