@@ -92,7 +92,7 @@ seperated by a "=". The following keys are supported:
 Input hdd file
 --------------
 
-You can create eiterh a copy of the hdd or use the hdd directly as input.
+You can create either a copy of the hdd or use the hdd directly as input.
 
 Linux:
   If you want to copy the hdd (assuming the hdd is /dev/sdb) then you can use
