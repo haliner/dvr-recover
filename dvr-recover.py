@@ -181,6 +181,7 @@ import time
 
 
 class DvrRecoverError(Exception):
+    '''Base class for all Exceptions in this module'''
     def __init__(self, msg):
         self.msg = msg
 
@@ -188,17 +189,21 @@ class DvrRecoverError(Exception):
         return self.msg
 
 class ExportError(DvrRecoverError):
+    '''Error while exporting chunks'''
     pass
 
 class UnexpectedResultError(DvrRecoverError):
+    '''Unexpected result encountered'''
     pass
 
 class FileReaderError(DvrRecoverError):
+    '''Exception class for FileReader class'''
     pass
 
 
 
 class Chunk(object):
+    '''Object to save information about one chunk'''
     def __init__(self):
         self.block_start = 0
         self.block_size = 0
@@ -208,13 +213,16 @@ class Chunk(object):
 
 
 class FileReader(object):
+    '''Handle multiple input streams as one big file'''
     class FilePart(object):
+        '''Object to save information about one input file'''
         def __init__(self):
             self.filename = None
             self.size = None
 
 
     def __init__(self, filenames):
+        '''Initialize FileReader'''
         self.parts = []
         for filename in filenames:
             part = self.FilePart()
@@ -227,6 +235,7 @@ class FileReader(object):
 
 
     def get_size(self):
+        '''Return the total size of all input streams'''
         size = 0
         for part in self.parts:
             size += part.size
@@ -234,6 +243,7 @@ class FileReader(object):
 
 
     def get_index(self, offset):
+        '''Return the index of the file where offset is located'''
         index = 0
         start = 0
         for part in self.parts:
@@ -246,6 +256,7 @@ class FileReader(object):
         return None
 
     def get_offset(self, index):
+        '''Return the starting offset of a specified file part'''
         i = 0
         offset = 0
         for part in self.parts:
@@ -258,6 +269,7 @@ class FileReader(object):
 
 
     def open(self, index):
+        '''Open input stream with the specified index'''
         self.close()
         if (index >= 0) and (index < len(self.parts)):
             self.file = open(self.parts[index].filename, 'rb')
@@ -267,6 +279,7 @@ class FileReader(object):
 
 
     def close(self):
+        '''Close current input stream'''
         if self.file is not None:
             self.file.close()
         self.current_file = None
@@ -274,6 +287,7 @@ class FileReader(object):
 
 
     def seek(self, offset):
+        '''Seek to offset (open correct file, seek, ...)'''
         index = self.get_index(offset)
         delta = offset - self.get_offset(index)
         if self.current_file is None:
@@ -285,10 +299,12 @@ class FileReader(object):
 
 
     def is_eof(self):
+        '''Return true if eof of current file part is reached'''
         return (self.file.tell() == self.parts[self.current_file].size)
 
 
     def next_file(self):
+        '''Open next input file'''
         if self.current_file + 1 < len(self.parts):
             self.open(self.current_file + 1)
         else:
@@ -296,6 +312,7 @@ class FileReader(object):
     
 
     def read(self, size):
+        '''Read data from stream, automatically switch stream if necessary'''
         if self.file is None:
             return ''
         buf = self.file.read(size)
@@ -311,6 +328,7 @@ class FileReader(object):
 
 
 class Main(object):
+    '''Main class for this application'''
     def __init__(self):
         self.settings_filename = 'dvr-recover.conf'
         self.input_filenames = []
@@ -413,6 +431,7 @@ class Main(object):
     def create(self):
         '''Find all chunks in input file and write them to chunk file'''
         class ChunkFactory(object):
+            '''Extract information of all chunks'''
             def __init__(self, main, reader):
                 self.chunks = []
                 self.current_block = 0
@@ -431,6 +450,7 @@ class Main(object):
                 self.input_blocks = int(self.reader.get_size() / self.blocksize)
 
             def check_timer(self):
+                '''Print statistics if timer elapses'''
                 timer_new = time.time()
                 delta = timer_new - self.timer
                 if delta > 30:
@@ -451,6 +471,7 @@ class Main(object):
                     self.timer = timer_new
 
             def finished(self):
+                '''Print statistics after process has finished'''
                 delta = time.time() - self.timer_all
                 speed = float(self.current_block + 1) / float(delta)
                 print
@@ -546,6 +567,7 @@ class Main(object):
                 return clock
 
             def split(self):
+                '''End current chunk and start a new one'''
                 if self.chunk is not None:
                     self.chunk.block_size = self.current_block - 1 - \
                                             self.chunk.block_start
@@ -557,6 +579,7 @@ class Main(object):
                     self.chunk = None
 
             def run(self):
+                '''Main function for this class'''
                 self.chunk = None
                 self.reader.seek(0)
                 for self.current_block in xrange(0, self.input_blocks):
@@ -592,6 +615,7 @@ class Main(object):
     def sort(self):
         '''Sort chunks and try to concatenate parts of the same recording'''
         def find_next_part(chunk):
+            '''Find the next chunk which should be concatenated'''
             next_part = None
             for chunk2 in tmp:
                 if (chunk is chunk2) or (chunk2 in self.chunks):
