@@ -229,7 +229,6 @@ class FileReader(object):
             part.filename = filename
             part.size = os.stat(part.filename).st_size
             self.parts.append(part)
-
         self.current_file = None
         self.file = None
 
