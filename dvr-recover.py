@@ -32,10 +32,10 @@ the Free Software Foundation, either version 3 of the License, or
 (at your option) any later version.
 
 
-Option file
------------
+Settings file
+-------------
 
-Before you can use dvr-recover you will have to create an option file. The
+Before you can use dvr-recover you will have to create a settings file. The
 program will look for this file in the current directory and the file should be
 named "dvr-recover.conf". The syntax is quite easy, but the parser is also
 very easy and strict, so you should follow the instructions carefully. Every
