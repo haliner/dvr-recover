@@ -43,6 +43,17 @@ option must be in its OWN line. Empty lines, comments or additional whitespaces
 in front or after the option string are NOT allowed. Keys and values are
 seperated by a "=". The following keys are supported:
 
+  The square brackets in this listing are representing the type of the value.
+  Replace them with an integer for "[integer]". Don't copy this square
+  brackets into the settings file, so write
+
+    blocksize=2048
+
+  instead of
+
+    blocksize=[2048]
+
+
   hdd-file=[string]      This options sets the path of the hard disk drive
                          file used as input. You can either use a copy of the
                          block device (created with something like dd or so) or
