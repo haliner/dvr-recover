@@ -204,6 +204,9 @@ class DvrRecoverError(Exception):
     def __str__(self):
         return self.msg
 
+class OptionFileError(DvrRecoverError):
+    pass
+
 class ExportError(DvrRecoverError):
     '''Error while exporting chunks'''
     pass
@@ -386,7 +389,12 @@ class Main(object):
 
     def load_settings(self):
         '''Load all settings and set class attributes'''
-        f = open(self.settings_filename, 'r')
+        try:
+            f = open(self.settings_filename, 'r')
+        except IOError:
+            raise OptionFileError('Couldn\'t open option file! Use the '
+                                  'sample_settings parameter to create one '
+                                  'with the default values.')
         for line in f:
             # strip trailing new line character
             line = line[:-1]
