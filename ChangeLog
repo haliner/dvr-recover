@@ -1,9 +1,9 @@
 2010-05-09  Stefan Haller  <haliner@googlemail.com>
 
 	Version 0.2:
-	* dvr-recover.py: FileReader class added
-	* dvr-recover.py: Handle multiple input streams
-	* dvr-recover.py: Docstrings added
+	* dvr-recover.py: FileReader class added.
+	* dvr-recover.py: Handle multiple input streams.
+	* dvr-recover.py: Docstrings added.
 
 
 2010-04-29  Stefan Haller  <haliner@googlemail.com>
