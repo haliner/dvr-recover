@@ -1,3 +1,14 @@
+2010-05-10  Stefan Haller  <haliner@googlemail.com>
+
+	Version 0.3:
+	* dvr-recover.py: Catch error while opening settings file.
+	* dvr-recover.py: Don't load settings file for parameter sample_settings.
+	* dvr-recover.py: Replaced term "option file" with "settings file" to
+	  reduce phrases with the same meaning.
+	* dvr-recover.py: Added information concerning square brackets in usage
+	  message respectively docstring.
+
+
 2010-05-09  Stefan Haller  <haliner@googlemail.com>
 
 	Version 0.2:
