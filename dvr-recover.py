@@ -777,7 +777,8 @@ class Main(object):
             return
         if sys.argv[1] in ('sample_settings', 'test_settings', 'create',
                            'sort', 'reset', 'show', 'export'):
-            self.load_settings()
+            if sys.argv[1] != 'sample_settings':
+                self.load_settings()
             func = getattr(self, sys.argv[1])
             func()
         else:
