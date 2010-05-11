@@ -453,7 +453,8 @@ class Main(object):
 
     def test_settings(self):
         '''Read, verify and show settings'''
-        print 'input-file:', self.input_filenames
+        for filename in self.input_filenames:
+            print 'input-file:', filename
         print 'chunk-file:', self.chunk_filename
         print 'export-dir:', self.export_dir
         print 'blocksize:', self.blocksize
