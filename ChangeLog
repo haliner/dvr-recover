@@ -1,3 +1,12 @@
+2010-05-11  Stefan Haller  <haliner@googlemail.com>
+
+	Version 0.4:
+	* dvr-recover.py: test_settings: Don't print whole list of input filenames,
+	  print only one filename per line.
+	* dvr-recover.py: create: Try to write empty chunk list before processing
+	  input file, so the script fails before the time-consuming process.
+
+
 2010-05-10  Stefan Haller  <haliner@googlemail.com>
 
 	Version 0.3:

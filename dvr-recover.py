@@ -21,7 +21,7 @@
 dvr-recover - extract MPEG2 files of digital video recorder hdd
 ===============================================================
 
-Version: 0.3
+Version: 0.4
 
 
 Copyright (C) 2010 Stefan Haller <haliner@googlemail.com>
