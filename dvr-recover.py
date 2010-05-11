@@ -639,6 +639,11 @@ class Main(object):
                 self.split()
                 self.finished()
 
+        # try to write chunk list file, so script will crash before the
+        # time-consuming process if it can’t write
+        self.chunks = []
+        self.save_chunk_list()
+
         reader = FileReader(self.input_filenames)
         cf = ChunkFactory(self, reader)
         cf.run()
