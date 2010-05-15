@@ -288,6 +288,7 @@ class FileReader(object):
             index += 1
         return None
 
+
     def get_offset(self, index):
         '''Return the starting offset of a specified file part'''
         i = 0
