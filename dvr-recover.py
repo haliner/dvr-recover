@@ -235,10 +235,11 @@ class FileReaderError(DvrRecoverError):
 
 class Chunk(object):
     '''Object to save information about one chunk'''
-    __slot__ = ('block_start',
-                'block_size',
-                'clock_start',
-                'clock_end')
+    __slots__ = ('block_start',
+                 'block_size',
+                 'clock_start',
+                 'clock_end',
+                 'concat')
     def __init__(self):
         self.block_start = 0
         self.block_size = 0
