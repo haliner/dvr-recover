@@ -261,6 +261,9 @@ class FileReader(object):
         '''Initialize FileReader'''
         self.parts = []
         for filename in filenames:
+            if filename[0:3] == r'\\.':
+                raise FileReaderError('Direct access to Windows devices files '
+                                      'is not supported currently.')
             part = self.FilePart()
             part.filename = filename
             part.size = os.stat(part.filename).st_size
