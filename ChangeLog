@@ -1,8 +1,8 @@
 9999-99-99  Stefan Haller  <haliner@googlemail.com>
 
-    Version 0.5:
-    * dvr-recover.py: Minor Bugfixes.
-    * dvr-recover.py: Direct access to Windows device files forbidden.
+	Version 0.5:
+	* dvr-recover.py: Minor Bugfixes.
+	* dvr-recover.py: Direct access to Windows device files forbidden.
 
 2010-05-11  Stefan Haller  <haliner@googlemail.com>
 
