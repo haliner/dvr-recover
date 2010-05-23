@@ -54,7 +54,7 @@ seperated by a "=". The following keys are supported:
     blocksize=[2048]
 
 
-  hdd-file=[string]      This options sets the path of the hard disk drive
+  hdd-file=[string]      This option sets the path of the hard disk drive
                          file used as input. You can either use a copy of the
                          block device (created with something like dd or so) or
                          the block device directly (required root privileges).
