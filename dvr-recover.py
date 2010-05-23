@@ -117,10 +117,8 @@ Linux:
     hdd-file=/dev/sdb
 
 Windows:
-  Use a tool to create a copy of the hdd or use this as value for hdd-file:
-  (Replace N with the number of the drive.)
-
-    hdd-file=\\.\PhysicalDriveN
+  Use a tool to create a copy of the hdd. Direct access to Windows device
+  files (\\.\PhysicalDrive0, ...) is not supported at the moment.
 
 
 Chunk file:
