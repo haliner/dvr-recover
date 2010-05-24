@@ -472,19 +472,23 @@ class SqlManager(object):
 
 
     def chunk_delete_id(self, chunk_id):
+    '''Delete row from chunk table by id'''
         self.conn.execute("DELETE FROM chunk WHERE id = ?",
                           (chunk_id,))
 
 
     def chunk_delete(self, chunk):
+    '''Delete row from chunk table by chunk object'''
         self.chunk_delete_id(chunk.id)
 
 
     def chunk_reset(self):
+    '''Delete all rows from chunk table'''
         self.conn.execute("DELETE FROM chunk")
 
 
     def chunk_query_ids(self):
+    '''Return iterator for all chunk ids'''
         for result in self.conn.execute(
             "SELECT id FROM chunk "
             "ORDERD BY block_start"):
@@ -492,6 +496,7 @@ class SqlManager(object):
 
 
     def chunk_query(self):
+    '''Return iterator for all chunk objects'''
         for chunk_id in self.chunk_query_ids():
             yield self.chunk_load(chunk_id)
 
