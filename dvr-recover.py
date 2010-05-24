@@ -871,42 +871,45 @@ class Main(object):
 
     def sort(self):
         '''Sort chunks and try to concatenate parts of the same recording'''
-        def find_next_part(chunk):
+        def find_next_part(chunk_id):
             '''Find the next chunk which should be concatenated'''
+            chunk = self.db_manager.query_chunk_by_id(chunk_id)
             next_part = None
-            for chunk2 in tmp:
-                if (chunk is chunk2) or (chunk2 in self.chunks):
+            for chunk_id2 in old_chunk_ids:
+                if (chunk_id is chunk_id2) or (chunk_id2 in new_chunk_ids):
                     continue
+
+                chunk2 = self.db_manager.query_chunk_by_id(chunk_id2)
 
                 delta = chunk2.clock_start - chunk.clock_end
                 if (delta < 0) or (delta > self.max_sort_gap):
                     continue
 
                 if next_part is None:
-                    next_part = chunk2
+                    next_part = chunk_id2
                 else:
                     old = next_part.clock_start - chunk.clock_end
                     if delta < old:
-                        next_part = chunk2
+                        next_part = chunk_id2
 
             if next_part is not None:
-                next_part.concat = True
-                self.chunks.append(next_part)
-                tmp.remove(next_part)
+                new_chunk_ids.append((next_part, True))
+                old_chunk_ids.remove(next_part)
                 find_next_part(next_part)
 
-        self.load_chunk_list()
+        old_chunk_ids = self.db_manager.query_chunk_ids('clock_start')
+        new_chunk_ids = []
+        for chunk_id in old_chunk_ids:
+            new_chunk_ids.append((chunk_id, False))
+            find_next_part(chunk_id)
 
-        self.chunks.sort(key=lambda x: x.clock_start)
-
-        tmp = self.chunks[:]
-        self.chunks = []
-        for chunk in tmp:
-            chunk.concat = False
-            self.chunks.append(chunk)
-            find_next_part(chunk)
-
-        self.save_chunk_list()
+        index = 0
+        for chunk_info in new_chunk_ids:
+            chunk = self.db_manager.query_chunk_by_id(chunk_info[0])
+            chunk.position = index
+            chunk.concat = chunk_info[1]
+            self.db_manager.update_chunk_by_id(chunk)
+            index += 1
 
 
     def reset(self):
