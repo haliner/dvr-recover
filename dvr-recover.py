@@ -562,46 +562,20 @@ class SqlManager(object):
 
 
 
+
 class Main(object):
     '''Main class for this application'''
     def __init__(self):
         self.settings_filename = 'dvr-recover.conf'
         self.input_filenames = []
-        self.chunk_filename = None
+        self.db_filename = None
         self.export_dir = None
         self.blocksize = 2048
         self.min_chunk_size = 25600 # 50 MiB
         self.max_create_gap = 90000 # 1 second
         self.max_sort_gap = 90000   # 1 second
 
-
-    def load_chunk_list(self):
-        '''Load the chunk file into the chunks list of the object'''
-        self.chunks = []
-        f = open(self.chunk_filename, 'r')
-        for line in f:
-            line = line[:-1]
-            result = line.split(';')
-            chunk = Chunk()
-            chunk.block_start = int(result[0])
-            chunk.block_size = int(result[1])
-            chunk.clock_start = int(result[2])
-            chunk.clock_end = int(result[3])
-            chunk.concat = int(result[4]) == 1
-            self.chunks.append(chunk)
-        f.close()
-
-
-    def save_chunk_list(self):
-        '''Write the list of chunks of this object into chunk list file'''
-        f = open(self.chunk_filename, 'w')
-        for chunk in self.chunks:
-            f.write('%i;%i;%i;%i;%i\n' % (chunk.block_start,
-                                          chunk.block_size,
-                                          chunk.clock_start,
-                                          chunk.clock_end,
-                                          int(chunk.concat)))
-        f.close()
+        self.db_manager = SqlManager()
 
 
     def load_settings(self):
@@ -622,8 +596,8 @@ class Main(object):
             (key, value) = result
             if key == 'hdd-file':
                 self.input_filenames.append(value)
-            elif key == 'chunk-file':
-                self.chunk_filename = value
+            elif key == 'db-file':
+                self.db_filename = value
             elif key == 'export-dir':
                 self.export_dir = value
             elif key == 'blocksize':
@@ -648,7 +622,7 @@ class Main(object):
         '''Create sample settings file'''
         f = open(self.settings_filename, 'w')
         print >>f, 'hdd-file='
-        print >>f, 'chunk-file='
+        print >>f, 'db-file=dvr-recover.sqlite'
         print >>f, 'export-dir='
         print >>f, 'blocksize=2048'
         print >>f, 'min-chunk-size=25600'
@@ -674,7 +648,6 @@ class Main(object):
         class ChunkFactory(object):
             '''Extract information of all chunks'''
             def __init__(self, main, reader):
-                self.chunks = []
                 self.current_block = 0
                 self.clock = 0
                 self.old_clock = 0
@@ -1002,8 +975,10 @@ class Main(object):
                            'sort', 'reset', 'show', 'export'):
             if sys.argv[1] != 'sample_settings':
                 self.load_settings()
+            self.db_manager.open(self.db_filename)
             func = getattr(self, sys.argv[1])
             func()
+            self.db_manager.close()
         else:
             self.usage()
 
