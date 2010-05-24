@@ -988,11 +988,9 @@ class Main(object):
             outf.close()
             reader.close()
 
-        self.load_chunk_list()
-
         if len(sys.argv) < 3:
             # no special chunk specified -> export all
-            for i in range(0, len(self.chunks)):
+            for i in xrange(0, self.db_manager):
                 if not self.chunks[i].concat:
                     extract_chunk(i)
         else:
