@@ -243,10 +243,11 @@ class Chunk(object):
                  'clock_end',
                  'concat')
     def __init__(self):
-        self.block_start = 0
-        self.block_size = 0
-        self.clock_start = 0
-        self.clock_end = 0
+        self.id = None
+        self.block_start = None
+        self.block_size = None
+        self.clock_start = None
+        self.clock_end = None
         self.concat = False
 
 
