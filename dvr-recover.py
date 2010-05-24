@@ -919,8 +919,8 @@ class Main(object):
 
     def show(self):
         '''Dump chunk list file in a human readable way'''
-        self.load_chunk_list()
-        max_index_length = len(str(len(self.chunks) - 1))
+        chunk_ids = self.db_manager.query_chunk_ids('position')
+        max_index_length = len(str(len(chunk_ids) - 1))
         header_lines = '-' * (max_index_length) + \
           '-+--------------+--------------+--------------+--------------+-------------'
         header_captions = ' ' * (max_index_length) + \
@@ -931,7 +931,8 @@ class Main(object):
         index = 0
         fstring = '%' + str(max_index_length) + \
                   'i | %12i | %12i | %12i | %12i | %8s'
-        for chunk in self.chunks:
+        for chunk_id in chunk_ids:
+            chunk = self.db_manager.query_chunk_by_id(chunk_id)
             print fstring % (index,
                              chunk.block_start,
                              chunk.block_size,
