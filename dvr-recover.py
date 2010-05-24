@@ -469,7 +469,7 @@ class SqlManager(object):
     def delete_chunk_by_id(self, id):
         '''Delete chunk by id'''
         self.conn.execute(
-            "DELTE FROM chunk "
+            "DELETE FROM chunk "
             "WHERE id = ?",
             (id,))
 
