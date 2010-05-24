@@ -251,6 +251,7 @@ class Chunk(object):
         self.concat = False
 
 
+
 class FileReader(object):
     '''Handle multiple input streams as one big file'''
     class FilePart(object):
