@@ -32,54 +32,62 @@ the Free Software Foundation, either version 3 of the License, or
 (at your option) any later version.
 
 
+Sqlite database file
+--------------------
+
+The script will create a sqlite3 database in the current directory with the
+name "dvr-recover.sqlite". All settings and data will be stored in this
+database.
+
+
 Settings file
 -------------
 
-Before you can use dvr-recover you will have to create a settings file. The
-program will look for this file in the current directory and the file should be
-named "dvr-recover.conf". The syntax is quite easy, but the parser is also
-very easy and strict, so you should follow the instructions carefully. Every
-option must be in its OWN line. Empty lines, comments or additional whitespaces
-in front or after the option string are NOT allowed. Keys and values are
-seperated by a "=". The following keys are supported:
+Before you can use dvr-recover you will have to change the default settings.
+You can do this by simply calling the script with the parameter "setup"
+followed by the setting to change and the new value. To change the value of
+the blocksize setting call:
 
-  The square brackets in this listing are representing the type of the value.
-  Replace them with an integer for "[integer]". Don't copy this square
-  brackets into the settings file, so write
+    python dvr-recover.py setup blocksize 2048
 
-    blocksize=2048
+Here is a full listing of all available settings:
+
+   The square brackets in this listing are representing the type of the value.
+   Replace them with an integer for "[integer]". Don't copy this square
+   brackets, so write
+
+    blocksize 2048
 
   instead of
 
-    blocksize=[2048]
+    blocksize [2048]
 
 
-  hdd-file=[string]      This option sets the path of the hard disk drive
-                         file used as input. You can either use a copy of the
-                         block device (created with something like dd or so) or
+  input clear            This option sets the path of the hard disk drive
+  input add [filename]   file used as input. You can either use a copy of the
+  input del [filename]   block device (created with something like dd or so) or
                          the block device directly (required root privileges).
                          The file must be readable. It's possible to specify
-                         multiple hdd-files, the script will threat them
+                         multiple hdd-files by calling the add parameter
+                         multiply times. The script will threat the single files
                          as one big file. That way you can split the hdd into
                          smaller pieces.
+                         
+                         parameter clear:   clear list of input file
+                         parameter add:     add one file to list of input files
+                         parameter del:     delete one file from list of input
+                                            files
 
-  chunk-file=[string]    Sets the path of the chunk file used as temporary
-                         buffer for the information of the chunks (position,
-                         size, clock timers, etc.). This file must be
-                         writeable and readable and doesn't have to exist for
-                         the first step.
-
-  export-dir=[string]    Defines where the output should be written to. Must
+  exportdir [string]     Defines where the output should be written to. Must
                          match an existing path. Both relative and absolute
                          paths are accepted. Current directory is "./".
 
-  blocksize=[integer]    The blocksize of the filesystem can be configured
+  blocksize [integer]    The blocksize of the filesystem can be configured
                          with this option. Set this to a value in bytes.
                          The default value is 2048 bytes. Probably this value
                          should work, but if not, you're free to tune it.
 
-  min-chunk-size=[integer]
-                         If the script finds chunks smaller than this size
+  minchunksize [integer] If the script finds chunks smaller than this size
                          (value must be given in blocks!), it will ignore them
                          silently. If this value is too small, the script
                          will find chunks that were deleted or can't be used.
@@ -87,14 +95,12 @@ seperated by a "=". The following keys are supported:
                          will be ignored. The default value is 25600 blocks
                          (50 MiB by blocksize of 2048 bytes).
 
-  max-create-gap=[integer]
-                         The script will split the stream into two chunks if
+  maxcreategap [integer] The script will split the stream into two chunks if
                          it finds two frames where the timecode differs more
                          than this value. MPEG uses a clock of 90 kHz.
                          So the default value of 90,000 ticks equals one second.
 
-  max-sort-gap=[integer]
-                         See max-create-gap. This value is used to concatenate
+  maxsortgap [integer]   See maxcreategap. This value is used to concatenate
                          two chunks if the difference of the timecode is smaller
                          than this value. The default value of 90,000 ticks
                          equals one second.
@@ -121,31 +127,20 @@ Windows:
   files (\\.\PhysicalDrive0, ...) is not supported at the moment.
 
 
-Chunk file:
------------
-
-This tool will create a temporary chunk file to store its data. This file will
-be created in step 1. But all subsequent steps will need this file. After
-using the tool and extracting all recordings you can remove this file. But be
-sure that you doesn't need it anymore, because extracting the chunk information
-may take a long time!
-
-
 Steps:
 ------
 
 Step 1: Export information of chunks
-  This step will create the temporary chunk file. The hdd file will be
-  analyzed and all necessary information are collected. This step may take
-  quite a long time, be patient! This step is only necessary once. All other
-  steps will use the created chunk file to save time. (The script tries to find
-  mpeg headers and extract the timecode. Depending on the timecode it's possible
-  to split the stream into separate chunks.)
+  The hdd file will be analyzed and all necessary information are collected.
+  This step may take quite a long time, be patient! This step is only necessary
+  once. All other steps will use the stored chunk info to save time.
+  (The script tries to find mpeg headers and extract the timecode. Depending on
+  the timecode it's possible to split the stream into separate chunks.)
 
   Parameter: create
 
 Step 2: Analyze and sort chunks
-  This step will analyze the created chunk file and sort the chunks. The tools
+  This step will analyze the stored chunk info and sort the chunks. The tools
   tries to find parts of the same recording (by analyzing the timecode
   informationof the chunks) and bring them into the right order.
 
@@ -157,12 +152,9 @@ Step 3: Show chunks
   Parameter: show
 
 Step 4: Export chunks
-  This step will use the conditioned chunk file and export the chunks. You can
-  either export all chunks at once or select chunks. Normally the tool will
-  assembly all parts of the same recording into one file. (If you don't want
-  this, you can edit the chunk file and set the values for "concat" to 0. This
-  might be usefull if the script was unable to determine the correct
-  information about all recordings.)
+  This step will use the conditioned chunk data and export the chunks. You can
+  either export all chunks at once or select chunks. The tool will assembly all
+  parts of the same recording into one file.
   Use paramater "show" to get the id of the chunk you want to extract. If you
   call export without any additional parameter, all chunks will be exported.
 
@@ -172,10 +164,21 @@ Step 4: Export chunks
 Additional Parameters:
 ----------------------
 
-sample_settings          Create a sample settings file.
+setup [setup-args]        Manage all settings necessary for a working script.
 
-test_settings            Read settings file and print all values that will be
-                         used.
+setup show                Show all settings.
+setup reset               Reset all settings to default values.
+
+setup input clear         Delete all input files from list.
+setup input add [FILE]    Add input file to list.
+setup input remove [FILE] Remove input file from list.
+
+setup blocksize [INTEGER]
+setup exportdir [STRING]
+setup minchunksize [INTEGER]
+setup maxcreategap [INTEGER]
+setup maxsortgap [INTEGER]
+
 
 
 Usage:
