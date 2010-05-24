@@ -407,7 +407,6 @@ class SqlManager(object):
             "clock_start INTEGER,"
             "clock_end INTEGER,"
             "concat INTEGER,"
-            "position INTEGER"
             ")")
         self.conn.execute(
             "CREATE TABLE IF NOT EXISTS state("
@@ -416,30 +415,17 @@ class SqlManager(object):
             ")")
 
 
-    def reset_chunks(self):
-        '''Delete all entries of chunk table'''
-        self.conn.execute("DELETE FROM chunk")
-
-
-    def reset_chunk_status(self):
-        '''Reset position and concat of all chunk entries'''
-        self.conn.execute(
-            "UPDATE chunk "
-            "SET position = null,"
-                "concat = 0")
-
-
-    def count_chunks(self):
-        '''Return the entry count in chunk table'''
+    def chunk_count(self):
+        '''Return count of rows in chunk table'''
         return self.conn.execute("SELECT COUNT(*) FROM chunk").fetchone()[0]
 
 
-    def query_chunk_by_id(self, id):
-        '''Return Chunk object for given chunk id'''
+    def chunk_load(self, chunk_id):
+        '''Return chunk object by chunk_id'''
         result = self.conn.execute(
             "SELECT * FROM chunk "
             "WHERE id = ?",
-            (id,)).fetchone()
+            (chunk_id,)).fetchone()
         if result is None:
             return None
         chunk = Chunk()
@@ -448,67 +434,66 @@ class SqlManager(object):
          chunk.block_size,
          chunk.clock_start,
          chunk.clock_end,
-         chunk.concat,
-         chunk.position) = result
-        chunk.concat = bool(chunk.concat)
+         chunk.concat) = result
         return chunk
 
 
-    def query_chunk_ids(self, order=None):
-        '''Return list with all chunk ids'''
-        sql = "SELECT id FROM chunk"
-        if order is not None:
-            parts = order.split(' ', 2)
-            if len(parts) < 2:
-                parts.append('asc')
-            if parts[0] not in ('position', 'clock_start') or \
-               parts[1] not in ('asc', 'desc'):
-                raise SqlManagerError('Incorrect parameter order = %s' % order)
-            sql += " ORDER BY %s %s" % tuple(parts)
-        result = self.conn.execute(sql).fetchall()
-        return [i[0] for i in result]
+    def chunk_save(self, chunk):
+        '''Insert or update info in chunk table'''
+        if chunk.new:
+            cur = self.conn.execute(
+                "INSERT INTO chunk "
+                "VALUES (?, ?, ?, ?, ?, ?)",
+                (chunk.id,
+                 chunk.block_start,
+                 chunk.block_size,
+                 chunk.clock_start,
+                 chunk.clock_end,
+                 chunk.concat))
+
+                 chunk.id = cur.rowid
+                 chunk.new = False
+        else:
+            self.conn.execute(
+                "UPDATE chunk "
+                "SET block_start = ?,"
+                    "block_size = ?,"
+                    "clock_start = ?,"
+                    "clock_end = ?,"
+                    "concat = ?,"
+                    "position = ? "
+                "WHERE id = ?",
+                (chunk.block_start,
+                 chunk.block_size,
+                 chunk.clock_start,
+                 chunk.clock_end,
+                 chunk.concat,
+                 chunk.id))
 
 
-    def delete_chunk_by_id(self, id):
-        '''Delete chunk by id'''
-        self.conn.execute(
-            "DELETE FROM chunk "
-            "WHERE id = ?",
-            (id,))
+    def chunk_delete_id(self, chunk_id):
+        self.conn.execute("DELETE FROM chunk WHERE id = ?",
+                          (chunk_id,))
 
 
-    def insert_chunk(self, chunk):
-        '''Insert Chunk object into chunk table'''
-        self.conn.execute(
-            "INSERT INTO chunk "
-            "VALUES (?, ?, ?, ?, ?, ?, ?)",
-            (chunk.id,
-             chunk.block_start,
-             chunk.block_size,
-             chunk.clock_start,
-             chunk.clock_end,
-             chunk.concat,
-             chunk.position))
+    def chunk_delete(self, chunk):
+        self.chunk_delete_id(chunk.id)
 
 
-    def update_chunk_by_id(self, chunk):
-        '''Update entry in chunk table by Chunk object'''
-        self.conn.execute(
-            "UPDATE chunk "
-            "SET block_start = ?,"
-                "block_size = ?,"
-                "clock_start = ?,"
-                "clock_end = ?,"
-                "concat = ?,"
-                "position = ? "
-            "WHERE id = ?",
-            (chunk.block_start,
-             chunk.block_size,
-             chunk.clock_start,
-             chunk.clock_end,
-             chunk.concat,
-             chunk.position,
-             chunk.id))
+    def chunk_reset(self):
+        self.conn.execute("DELETE FROM chunk")
+
+
+    def chunk_query_ids(self):
+        for result in self.conn.execute(
+            "SELECT id FROM chunk "
+            "ORDERD BY block_start"):
+            yield result[0]
+
+
+    def chunk_query(self):
+        for chunk_id in self.chunk_query_ids():
+            yield self.chunk_load(chunk_id)
 
 
     def reset_states(self):
