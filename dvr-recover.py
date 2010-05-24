@@ -842,8 +842,7 @@ class Main(object):
                     self.current_block = 0
                 self.db_manager.reset_states()
                 self.db_manager.init_states()
-                self.chunk = None
-                self.reader.seek(0)
+                self.reader.seek(self.current_block * self.blocksize)
                 for self.current_block in xrange(self.current_block,
                                                  self.input_blocks):
                     self.check_timer()
