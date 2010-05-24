@@ -72,7 +72,7 @@ Here is a full listing of all available settings:
                          multiply times. The script will threat the single files
                          as one big file. That way you can split the hdd into
                          smaller pieces.
-                         
+
                          parameter clear:   clear list of input file
                          parameter add:     add one file to list of input files
                          parameter del:     delete one file from list of input
