@@ -501,12 +501,12 @@ class SqlManager(object):
             yield self.chunk_load(chunk_id)
 
 
-    def reset_states(self):
+    def state_reset(self):
         '''Delete all entries of state table'''
         self.conn.execute("DELETE FROM state")
 
 
-    def init_states(self):
+    def state_init(self):
         '''Reset state table and set key values to null'''
         self.reset_states()
         for i in ('current_block',
@@ -516,7 +516,7 @@ class SqlManager(object):
             self.insert_state(i, None)
 
 
-    def query_state(self, key):
+    def state_query(self, key):
         '''Return value of state by key'''
         result = self.conn.execute(
             "SELECT value FROM state "
@@ -527,7 +527,7 @@ class SqlManager(object):
         return result[0]
 
 
-    def delete_state(self, key):
+    def state_delete(self, key):
         '''Delete entry in state table by key'''
         self.conn.execute(
             "DELETE from state "
@@ -535,7 +535,7 @@ class SqlManager(object):
             (key,))
 
 
-    def insert_state(self, key, value):
+    def state_insert(self, key, value):
         '''Insert key/value pair into state table'''
         self.conn.execute(
             "INSERT INTO state "
@@ -543,7 +543,7 @@ class SqlManager(object):
             (key, value))
 
 
-    def update_state(self, key, value):
+    def state_update(self, key, value):
         '''Update key/value pair in state table'''
         self.conn.execute(
             "UPDATE state "
