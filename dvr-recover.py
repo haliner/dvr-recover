@@ -659,40 +659,82 @@ class Main(object):
                 self.blocksize = main.blocksize
                 self.min_chunk_size = main.min_chunk_size
                 self.max_gap = main.max_create_gap
+                self.db_manager = main.db_manager
 
                 self.reader = reader
                 self.input_blocks = int(self.reader.get_size() / self.blocksize)
 
+            def save_state(self):
+                if self.chunk is None:
+                    block_start = None
+                    clock_start = None
+                else:
+                    block_start = self.chunk.block_start
+                    clock_start = self.chunk.clock_start
+                self.db_manager.update_state(
+                    'current_block',
+                    self.current_block)
+                self.db_manager.update_state(
+                    'block_start',
+                    block_start)
+                self.db_manager.update_state(
+                    'clock_start',
+                    clock_start)
+                self.db_manager.update_state(
+                    'old_clock',
+                    self.old_clock)
+                self.db_manager.commit()
+
+            def load_state(self):
+                current_block = self.db_manager.query_state('current_block')
+                block_start = self.db_manager.query_state('block_start')
+                clock_start = self.db_manager.query_state('clock_start')
+                old_clock = self.db_manager.query_state('old_clock')
+
+                self.current_block = current_block
+                if (block_start is not None) and (clock_start is not None):
+                    self.chunk = Chunk()
+                    self.block_start = block_start
+                    self.clock_start = clock_start
+                self.old_clock = old_clock
+
             def check_timer(self):
-                '''Print statistics if timer elapses'''
+                '''Print statistics and save state if timer elapses'''
                 timer_new = time.time()
                 delta = timer_new - self.timer
                 if delta > 30:
+                    self.save_state()
+
+                    chunk_count = self.db_manager.count_chunks()
                     speed = float(self.current_block - self.timer_blocks) \
                                 / float(delta)
                     print '[%5.1f%%] %i/%i blocks (%.1f bl/s; ' \
                           '%.1f MiB/s): %i chunks' % \
                           (
-                            float(self.current_block + 1) /
+                            float(self.current_block) /
                                 float(self.input_blocks) * 100.0,
-                            self.current_block + 1,
+                            self.current_block,
                             self.input_blocks,
                             speed,
                             float(speed * self.blocksize) / float(1024**2),
-                            len(self.chunks)
+                            chunk_count
                           )
                     self.timer_blocks = self.current_block
                     self.timer = timer_new
 
             def finished(self):
-                '''Print statistics after process has finished'''
+                '''Print statistics and commit changes after finishing'''
+                self.db_manager.reset_states()
+                self.db_manager.commit()
+
                 delta = time.time() - self.timer_all
+                chunk_count = self.db_manager.count_chunks()
                 speed = float(self.current_block + 1) / float(delta)
                 print
                 print 'Finished.'
                 print 'Read %i of %i blocks.' % (self.current_block + 1,
                                                  self.input_blocks)
-                print 'Found %i chunks.' % len(self.chunks)
+                print 'Found %i chunks.' % chunk_count
                 print 'Took %.2f seconds.' % delta
                 print 'Average speed was %.1f blocks/s (%.1f MiB/s).' % \
                       (speed, float(speed * self.blocksize) / float(1024**2))
@@ -788,15 +830,19 @@ class Main(object):
                     self.chunk.clock_end = self.old_clock
 
                     if (self.chunk.block_size >= self.min_chunk_size):
-                        self.chunks.append(self.chunk)
-
+                        self.db_manager.insert_chunk(self.chunk)
                     self.chunk = None
 
             def run(self):
                 '''Main function for this class'''
+                self.load_state()
+                self.db_manager.reset_chunks()
+                self.db_manager.reset_states()
+                self.db_manager.init_states()
                 self.chunk = None
                 self.reader.seek(0)
                 for self.current_block in xrange(0, self.input_blocks):
+                    self.check_timer()
                     buf = self.reader.read(self.blocksize)
                     if len(buf) != self.blocksize:
                         raise UnexpectedResultError('len(buf) != '
@@ -814,21 +860,13 @@ class Main(object):
                             if (delta < 0) or (delta > self.max_gap):
                                 self.split()
                         self.old_clock = self.clock
-                    self.check_timer()
                 self.split()
                 self.finished()
-
-        # try to write chunk list file, so script will crash before the
-        # time-consuming process if it can’t write
-        self.chunks = []
-        self.save_chunk_list()
 
         reader = FileReader(self.input_filenames)
         cf = ChunkFactory(self, reader)
         cf.run()
         reader.close()
-        self.chunks = cf.chunks
-        self.save_chunk_list()
 
 
     def sort(self):
