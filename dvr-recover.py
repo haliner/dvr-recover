@@ -914,11 +914,7 @@ class Main(object):
 
     def reset(self):
         '''Sort chunks by block_start and clear concat attribute'''
-        self.load_chunk_list()
-        self.chunks.sort(key=lambda x: x.block_start)
-        for chunk in self.chunks:
-            chunk.concat = False
-        self.save_chunk_list()
+        self.db_manager.reset_chunk_status()
 
 
     def show(self):
