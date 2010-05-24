@@ -221,6 +221,10 @@ class OptionFileError(DvrRecoverError):
 class SqlManagerError(DvrRecoverError):
     pass
 
+class CreateError(DvrRecoverError):
+    '''Error while creating chunk list'''
+    pass
+
 class ExportError(DvrRecoverError):
     '''Error while exporting chunks'''
     pass
@@ -827,12 +831,21 @@ class Main(object):
             def run(self):
                 '''Main function for this class'''
                 self.load_state()
-                self.db_manager.reset_chunks()
+                if self.current_block is None:
+                    if self.db_manager.chunk_count() != 0:
+                        raise CreateError('No state information, but chunk '
+                                          'count is not 0. Probably the scan '
+                                          'finished already. Abort process to '
+                                          'avoid loss of data. Use parameter '
+                                          'reset to clear database (you will
+                                          'lose all chunk information).')
+                    self.current_block = 0
                 self.db_manager.reset_states()
                 self.db_manager.init_states()
                 self.chunk = None
                 self.reader.seek(0)
-                for self.current_block in xrange(0, self.input_blocks):
+                for self.current_block in xrange(self.current_block,
+                                                 self.input_blocks):
                     self.check_timer()
                     buf = self.reader.read(self.blocksize)
                     if len(buf) != self.blocksize:
