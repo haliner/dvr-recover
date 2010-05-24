@@ -187,6 +187,7 @@ Usage:
   create
   sort
   reset
+  clear
   show
   export [chunk-id]
 
@@ -837,7 +838,7 @@ class Main(object):
                                           'count is not 0. Probably the scan '
                                           'finished already. Abort process to '
                                           'avoid loss of data. Use parameter '
-                                          'reset to clear database (you will
+                                          'clear to clear database (you will
                                           'lose all chunk information).')
                     self.current_block = 0
                 self.db_manager.reset_states()
@@ -918,6 +919,11 @@ class Main(object):
     def reset(self):
         '''Sort chunks by block_start and clear concat attribute'''
         self.db_manager.reset_chunk_status()
+
+
+    def clear(self):
+        '''Delete all chunks'''
+        self.db_manager.chunk_reset()
 
 
     def show(self):
@@ -1011,7 +1017,7 @@ class Main(object):
             self.usage()
             return
         if sys.argv[1] in ('sample_settings', 'test_settings', 'create',
-                           'sort', 'reset', 'show', 'export'):
+                           'sort', 'reset', 'clear', 'show', 'export'):
             if sys.argv[1] != 'sample_settings':
                 self.load_settings()
             self.db_manager.open(self.db_filename)
