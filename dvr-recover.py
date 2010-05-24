@@ -201,8 +201,9 @@ Tested devices:
 '''
 
 
-import sys
 import os.path
+import sqlite3
+import sys
 import time
 
 
@@ -215,6 +216,9 @@ class DvrRecoverError(Exception):
         return self.msg
 
 class OptionFileError(DvrRecoverError):
+    pass
+
+class SqlManagerError(DvrRecoverError):
     pass
 
 class ExportError(DvrRecoverError):
@@ -362,6 +366,198 @@ class FileReader(object):
                 raise FileReaderError('Incomplete filled buffer without '
                                       'reaching end of file!')
         return buf
+
+
+
+class SqlManager(object):
+    '''Interface to access data via SQL queries'''
+    def __init__(self):
+        '''Initialize SqlManager'''
+        self.conn = None
+
+
+    def open(self, filename):
+        '''Open Sqlite3 database'''
+        self.conn = sqlite3.connect(filename)
+        self.init_db()
+
+
+    def close(self, commit=True):
+        '''Close database connection after optional commit'''
+        if commit:
+            self.commit()
+        self.conn.close()
+
+
+    def commit(self):
+        '''Commit all changes'''
+        self.conn.commit()
+
+
+    def init_db(self):
+        '''Create structure of database'''
+        self.conn.execute(
+            "CREATE TABLE IF NOT EXISTS chunk("
+            "id INTEGER PRIMARY KEY,"
+            "block_start INTEGER,"
+            "block_size INTEGER,"
+            "clock_start INTEGER,"
+            "clock_end INTEGER,"
+            "concat INTEGER,"
+            "position INTEGER"
+            ")")
+        self.conn.execute(
+            "CREATE TABLE IF NOT EXISTS state("
+            "key TEXT PRIMARY KEY,"
+            "value"
+            ")")
+
+
+    def reset_chunks(self):
+        '''Delete all entries of chunk table'''
+        self.conn.execute("DELETE FROM chunk")
+
+
+    def reset_chunk_status(self):
+        '''Reset position and concat of all chunk entries'''
+        self.conn.execute(
+            "UPDATE chunk "
+            "SET position = null,"
+                "concat = 0")
+
+
+    def count_chunks(self):
+        '''Return the entry count in chunk table'''
+        return self.conn.execute("SELECT COUNT(*) FROM chunk").fetchone()[0]
+
+
+    def query_chunk_by_id(self, id):
+        '''Return Chunk object for given chunk id'''
+        result = self.conn.execute(
+            "SELECT * FROM chunk "
+            "WHERE id = ?",
+            (id,)).fetchone()
+        if result is None:
+            return None
+        chunk = Chunk()
+        (chunk.id,
+         chunk.block_start,
+         chunk.block_size,
+         chunk.clock_start,
+         chunk.clock_end,
+         chunk.concat,
+         chunk.position) = result
+        chunk.concat = bool(chunk.concat)
+        return chunk
+
+
+    def query_chunk_ids(self, order=None):
+        '''Return list with all chunk ids'''
+        sql = "SELECT id FROM chunk"
+        if order is not None:
+            parts = order.split(' ', 2)
+            if len(parts) < 2:
+                parts.append('asc')
+            if parts[0] not in ('position', 'clock_start') or \
+               parts[1] not in ('asc', 'desc'):
+                raise SqlManagerError('Incorrect parameter order = %s' % order)
+            sql += " ORDER BY %s %s" % tuple(parts)
+        result = self.conn.execute(sql).fetchall()
+        return [i[0] for i in result]
+
+
+    def delete_chunk_by_id(self, id):
+        '''Delete chunk by id'''
+        self.conn.execute(
+            "DELTE FROM chunk "
+            "WHERE id = ?",
+            (id,))
+
+
+    def insert_chunk(self, chunk):
+        '''Insert Chunk object into chunk table'''
+        self.conn.execute(
+            "INSERT INTO chunk "
+            "VALUES (?, ?, ?, ?, ?, ?, ?)",
+            (chunk.id,
+             chunk.block_start,
+             chunk.block_size,
+             chunk.clock_start,
+             chunk.clock_end,
+             chunk.concat,
+             chunk.position))
+
+
+    def update_chunk_by_id(self, chunk):
+        '''Update entry in chunk table by Chunk object'''
+        self.conn.execute(
+            "UPDATE chunk "
+            "SET block_start = ?,"
+                "block_size = ?,"
+                "clock_start = ?,"
+                "clock_end = ?,"
+                "concat = ?,"
+                "position = ? "
+            "WHERE id = ?",
+            (chunk.block_start,
+             chunk.block_size,
+             chunk.clock_start,
+             chunk.clock_end,
+             chunk.concat,
+             chunk.position,
+             chunk.id))
+
+
+    def reset_states(self):
+        '''Delete all entries of state table'''
+        self.conn.execute("DELETE FROM state")
+
+
+    def init_states(self):
+        '''Reset state table and set key values to null'''
+        self.reset_states()
+        for i in ('current_block',
+                  'block_start',
+                  'clock_start',
+                  'old_clock'):
+            self.insert_state(i, None)
+
+
+    def query_state(self, key):
+        '''Return value of state by key'''
+        result = self.conn.execute(
+            "SELECT value FROM state "
+            "WHERE key = ?",
+            (key,)).fetchone()
+        if result is None:
+            return None
+        return result[0]
+
+
+    def delete_state(self, key):
+        '''Delete entry in state table by key'''
+        self.conn.execute(
+            "DELETE from state "
+            "WHERE key = ?",
+            (key,))
+
+
+    def insert_state(self, key, value):
+        '''Insert key/value pair into state table'''
+        self.conn.execute(
+            "INSERT INTO state "
+            "VALUES (?, ?)",
+            (key, value))
+
+
+    def update_state(self, key, value):
+        '''Update key/value pair in state table'''
+        self.conn.execute(
+            "UPDATE state "
+            "SET value = ? "
+            "WHERE key = ?",
+            (value, key))
+
 
 
 class Main(object):
