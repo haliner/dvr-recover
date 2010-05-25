@@ -1047,4 +1047,8 @@ class Main(object):
 
 
 if __name__ == '__main__':
-    Main().run()
+    try:
+        Main().run()
+    except KeyboardInterrupt:
+        print 'KeyboardInterrupt'
+        pass
