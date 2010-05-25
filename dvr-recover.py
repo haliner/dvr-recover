@@ -909,45 +909,25 @@ class Main(object):
 
     def sort(self):
         '''Sort chunks and try to concatenate parts of the same recording'''
-        def find_next_part(chunk_id):
-            '''Find the next chunk which should be concatenated'''
-            chunk = self.db_manager.query_chunk_by_id(chunk_id)
-            next_part = None
-            for chunk_id2 in old_chunk_ids:
-                if (chunk_id is chunk_id2) or (chunk_id2 in new_chunk_ids):
+        self.db_manager.chunk_reset_concat()
+        for chunk1 in self.db_manager.chunk_query():
+            concat_chunk = None
+            for chunk2 in self.db_manager.chunk_query():
+                if chunk1.id == chunk2.id:
                     continue
-
-                chunk2 = self.db_manager.query_chunk_by_id(chunk_id2)
-
-                delta = chunk2.clock_start - chunk.clock_end
+                delta = chunk2.clock_start - chunk1.clock_end
                 if (delta < 0) or (delta > self.max_sort_gap):
                     continue
-
-                if next_part is None:
-                    next_part = chunk_id2
+                if concat_chunk is None:
+                    concat_chunk = chunk2
                 else:
-                    old = next_part.clock_start - chunk.clock_end
-                    if delta < old:
-                        next_part = chunk_id2
-
-            if next_part is not None:
-                new_chunk_ids.append((next_part, True))
-                old_chunk_ids.remove(next_part)
-                find_next_part(next_part)
-
-        old_chunk_ids = self.db_manager.query_chunk_ids('clock_start')
-        new_chunk_ids = []
-        for chunk_id in old_chunk_ids:
-            new_chunk_ids.append((chunk_id, False))
-            find_next_part(chunk_id)
-
-        index = 0
-        for chunk_info in new_chunk_ids:
-            chunk = self.db_manager.query_chunk_by_id(chunk_info[0])
-            chunk.position = index
-            chunk.concat = chunk_info[1]
-            self.db_manager.update_chunk_by_id(chunk)
-            index += 1
+                    old_delta = concat_chunk.clock_start - chunk1.clock_end
+                    if delta < old_delta:
+                        concat_chunk = chunk2
+            if concat_chunk is None:
+                continue
+            chunk1.concat = concat_chunk.id
+            self.db_manager.chunk_save(chunk1)
 
 
     def reset(self):
