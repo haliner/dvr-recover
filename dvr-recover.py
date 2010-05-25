@@ -260,6 +260,25 @@ class Chunk(object):
 
 
 
+class Timer(object):
+    '''Time measurement'''
+    __slots__ = ('timecode')
+    def __init__(self):
+        self.reset()
+
+
+    def reset(self):
+        self.timecode = time.time()
+
+
+    def elapsed(self, reset = False):
+        result = time.time() - self.timecode
+        if reset:
+            self.reset()
+        return result
+
+
+
 class FileReader(object):
     '''Handle multiple input streams as one big file'''
     def __init__(self, filenames):
