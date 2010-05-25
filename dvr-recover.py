@@ -932,7 +932,7 @@ class Main(object):
 
     def reset(self):
         '''Sort chunks by block_start and clear concat attribute'''
-        self.db_manager.reset_chunk_status()
+        self.db_manager.chunk_reset_concat()
 
 
     def clear(self):
