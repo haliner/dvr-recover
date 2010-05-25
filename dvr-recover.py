@@ -169,9 +169,9 @@ setup [setup-args]        Manage all settings necessary for a working script.
 setup show                Show all settings.
 setup reset               Reset all settings to default values.
 
-setup input clear         Delete all input files from list.
-setup input add [FILE]    Add input file to list.
-setup input remove [FILE] Remove input file from list.
+setup input clear
+setup input add [FILE]
+setup input remove [FILE]
 
 setup blocksize [INTEGER]
 setup exportdir [STRING]
