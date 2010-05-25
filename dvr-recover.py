@@ -504,6 +504,13 @@ class SqlManager(object):
         self.conn.execute("DELETE FROM chunk")
 
 
+    def chunk_reset_concat(self):
+        '''Set concat to null for all rows in chunk table'''
+        self.conn.execute(
+            "UPDATE chunk "
+            "SET concat = null")
+
+
     def chunk_query_ids(self):
         '''Return iterator for all chunk ids'''
         for result in self.conn.execute(
