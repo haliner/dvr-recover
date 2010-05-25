@@ -459,7 +459,7 @@ class SqlManager(object):
                  chunk.clock_end,
                  chunk.concat))
 
-            chunk.id = cur.rowid
+            chunk.id = cur.lastrowid
             chunk.new = False
         else:
             self.conn.execute(
@@ -516,12 +516,13 @@ class SqlManager(object):
 
     def state_init(self):
         '''Reset state table and set key values to null'''
-        self.reset_states()
+        self.state_reset()
         for i in ('current_block',
                   'block_start',
                   'clock_start',
-                  'old_clock'):
-            self.insert_state(i, None)
+                  'old_clock',
+                  'time_elapsed'):
+            self.state_insert(i, None)
 
 
     def state_query(self, key):
@@ -588,26 +589,30 @@ class ChunkFactory(object):
         else:
             block_start = self.chunk.block_start
             clock_start = self.chunk.clock_start
-        self.db_manager.update_state(
+        self.db_manager.state_update(
             'current_block',
             self.current_block)
-        self.db_manager.update_state(
+        self.db_manager.state_update(
             'block_start',
             block_start)
-        self.db_manager.update_state(
+        self.db_manager.state_update(
             'clock_start',
             clock_start)
-        self.db_manager.update_state(
+        self.db_manager.state_update(
             'old_clock',
             self.old_clock)
+        self.db_manager.state_update(
+            'time_elapsed',
+            time.time() - self.timer_all)
         self.db_manager.commit()
 
 
     def load_state(self):
-        current_block = self.db_manager.query_state('current_block')
-        block_start = self.db_manager.query_state('block_start')
-        clock_start = self.db_manager.query_state('clock_start')
-        old_clock = self.db_manager.query_state('old_clock')
+        current_block = self.db_manager.state_query('current_block')
+        block_start = self.db_manager.state_query('block_start')
+        clock_start = self.db_manager.state_query('clock_start')
+        old_clock = self.db_manager.state_query('old_clock')
+        time_elapsed = self.db_manager.state_query('time_elapsed')
 
         self.current_block = current_block
         if (block_start is not None) and (clock_start is not None):
@@ -615,6 +620,8 @@ class ChunkFactory(object):
             self.block_start = block_start
             self.clock_start = clock_start
         self.old_clock = old_clock
+        if time_elapsed is not None:
+            self.timer_all -= time_elapsed
 
 
     def check_timer(self):
@@ -624,7 +631,7 @@ class ChunkFactory(object):
         if delta > 30:
             self.save_state()
 
-            chunk_count = self.db_manager.count_chunks()
+            chunk_count = self.db_manager.chunk_count()
             speed = float(self.current_block - self.timer_blocks) \
                         / float(delta)
             print '[%5.1f%%] %i/%i blocks (%.1f bl/s; ' \
@@ -644,11 +651,11 @@ class ChunkFactory(object):
 
     def finished(self):
         '''Print statistics and commit changes after finishing'''
-        self.db_manager.reset_states()
+        self.db_manager.state_reset()
         self.db_manager.commit()
 
         delta = time.time() - self.timer_all
-        chunk_count = self.db_manager.count_chunks()
+        chunk_count = self.db_manager.chunk_count()
         speed = float(self.current_block + 1) / float(delta)
         print
         print 'Finished.'
@@ -752,7 +759,7 @@ class ChunkFactory(object):
             self.chunk.clock_end = self.old_clock
 
             if (self.chunk.block_size >= self.min_chunk_size):
-                self.db_manager.insert_chunk(self.chunk)
+                self.db_manager.chunk_save(self.chunk)
             self.chunk = None
 
 
@@ -768,8 +775,8 @@ class ChunkFactory(object):
                                   'clear to clear database (you will '
                                   'lose all chunk information).')
             self.current_block = 0
-        self.db_manager.reset_states()
-        self.db_manager.init_states()
+        self.db_manager.state_init()
+        self.timer_blocks = self.current_block
         self.reader.seek(self.current_block * self.blocksize)
         for self.current_block in xrange(self.current_block,
                                          self.input_blocks):
