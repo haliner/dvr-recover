@@ -263,13 +263,6 @@ class Chunk(object):
 
 class FileReader(object):
     '''Handle multiple input streams as one big file'''
-    class FilePart(object):
-        '''Object to save information about one input file'''
-        def __init__(self):
-            self.filename = None
-            self.size = None
-
-
     def __init__(self, filenames):
         '''Initialize FileReader'''
         self.parts = []
@@ -277,9 +270,8 @@ class FileReader(object):
             if filename[0:3] == r'\\.':
                 raise FileReaderError('Direct access to Windows devices files '
                                       'is not supported currently.')
-            part = self.FilePart()
-            part.filename = filename
-            part.size = os.stat(part.filename).st_size
+            part = {'filename': filename,
+                    'size': os.stat(filename).st_size}
             self.parts.append(part)
         self.current_file = None
         self.file = None
@@ -289,7 +281,7 @@ class FileReader(object):
         '''Return the total size of all input streams'''
         size = 0
         for part in self.parts:
-            size += part.size
+            size += part['size']
         return size
 
 
@@ -298,7 +290,7 @@ class FileReader(object):
         index = 0
         start = 0
         for part in self.parts:
-            end = start + part.size
+            end = start + part['size']
             if ((offset >= start) and
                 (offset < end)):
                 return index
@@ -313,7 +305,7 @@ class FileReader(object):
         offset = 0
         for part in self.parts:
             if i < index:
-                offset += part.size
+                offset += part['size']
             else:
                 break
             i += 1
@@ -324,7 +316,7 @@ class FileReader(object):
         '''Open input stream with the specified index'''
         self.close()
         if (index >= 0) and (index < len(self.parts)):
-            self.file = open(self.parts[index].filename, 'rb')
+            self.file = open(self.parts[index]['filename'], 'rb')
             self.current_file = index
         else:
             raise FileReaderError('Index out of range!')
@@ -352,7 +344,7 @@ class FileReader(object):
 
     def is_eof(self):
         '''Return true if eof of current file part is reached'''
-        return (self.file.tell() == self.parts[self.current_file].size)
+        return (self.file.tell() == self.parts[self.current_file]['size'])
 
 
     def next_file(self):
