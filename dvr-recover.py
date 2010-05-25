@@ -409,17 +409,17 @@ class SqlManager(object):
         '''Create structure of database'''
         self.conn.execute(
             "CREATE TABLE IF NOT EXISTS chunk("
-            "id INTEGER PRIMARY KEY,"
-            "block_start INTEGER,"
-            "block_size INTEGER,"
-            "clock_start INTEGER,"
-            "clock_end INTEGER,"
-            "concat INTEGER"
+                "id INTEGER PRIMARY KEY,"
+                "block_start INTEGER,"
+                "block_size INTEGER,"
+                "clock_start INTEGER,"
+                "clock_end INTEGER,"
+                "concat INTEGER"
             ")")
         self.conn.execute(
             "CREATE TABLE IF NOT EXISTS state("
-            "key TEXT PRIMARY KEY,"
-            "value"
+                "key TEXT PRIMARY KEY,"
+                "value"
             ")")
 
 
