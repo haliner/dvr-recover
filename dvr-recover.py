@@ -446,7 +446,7 @@ class SqlManager(object):
             (chunk_id,)).fetchone()
         if result is None:
             return None
-        chunk = Chunk()
+        chunk = Chunk(False)
         (chunk.id,
          chunk.block_start,
          chunk.block_size,
@@ -478,8 +478,7 @@ class SqlManager(object):
                     "block_size = ?,"
                     "clock_start = ?,"
                     "clock_end = ?,"
-                    "concat = ?,"
-                    "position = ? "
+                    "concat = ? "
                 "WHERE id = ?",
                 (chunk.block_start,
                  chunk.block_size,
