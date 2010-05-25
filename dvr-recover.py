@@ -414,7 +414,7 @@ class SqlManager(object):
             "block_size INTEGER,"
             "clock_start INTEGER,"
             "clock_end INTEGER,"
-            "concat INTEGER,"
+            "concat INTEGER"
             ")")
         self.conn.execute(
             "CREATE TABLE IF NOT EXISTS state("
