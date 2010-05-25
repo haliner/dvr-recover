@@ -956,26 +956,28 @@ class Main(object):
 
     def show(self):
         '''Dump chunk list file in a human readable way'''
-        chunk_ids = self.db_manager.query_chunk_ids('position')
-        max_index_length = len(str(len(chunk_ids) - 1))
-        header_lines = '-' * (max_index_length) + \
-          '-+--------------+--------------+--------------+--------------+-------------'
-        header_captions = ' ' * (max_index_length) + \
-          ' |  Block Start |   Block Size |  Clock Start |    Clock End | Concatenate'
+        header_lines = ('-' * 5) + ('+' + ('-' * 14)) * 5
+        header_captions = (' ' * 5 + ('| %12s ' * 5)[:-1]) % ('Block Start',
+                                                            'Block Size',
+                                                            'Clock Start',
+                                                            'Clock End',
+                                                            'Concatenate')
         print header_lines
         print header_captions
         print header_lines
-        index = 0
-        fstring = '%' + str(max_index_length) + \
-                  'i | %12i | %12i | %12i | %12i | %8s'
-        for chunk_id in chunk_ids:
-            chunk = self.db_manager.query_chunk_by_id(chunk_id)
-            print fstring % (index,
-                             chunk.block_start,
-                             chunk.block_size,
-                             chunk.clock_start,
-                             chunk.clock_end,
-                             chunk.concat)
+
+        fstring = '%4i ' + '| %12i ' * 4 + '| %10s'
+        chunk_line = lambda x: fstring % (index,
+                                          x.block_start,
+                                          x.block_size,
+                                          x.clock_start,
+                                          x.clock_end,
+                                          x.concat is not None)
+        index = 1
+        for chunk in self.db_manager.chunk_query():
+#            if chunk.concat is not None:
+#                continue
+            print chunk_line(chunk)
             index += 1
 
 
