@@ -579,8 +579,8 @@ class ChunkFactory(object):
         self.clock = 0
         self.old_clock = 0
         self.chunk = None
-        self.timer = time.time()
-        self.timer_all = time.time()
+        self.timer = Timer()
+        self.timer_all = Timer()
         self.timer_blocks = 0
 
         self.blocksize = main.blocksize
@@ -613,7 +613,7 @@ class ChunkFactory(object):
             self.old_clock)
         self.db_manager.state_update(
             'time_elapsed',
-            time.time() - self.timer_all)
+            self.timer_all.elapsed())
         self.db_manager.commit()
 
 
@@ -631,14 +631,15 @@ class ChunkFactory(object):
             self.clock_start = clock_start
         self.old_clock = old_clock
         if time_elapsed is not None:
-            self.timer_all -= time_elapsed
+            self.timer_all.timecode -= time_elapsed
 
 
     def check_timer(self):
         '''Print statistics and save state if timer elapses'''
-        timer_new = time.time()
-        delta = timer_new - self.timer
+        delta = self.timer.elapsed()
         if delta > 30:
+            self.timer.reset()
+
             self.save_state()
 
             chunk_count = self.db_manager.chunk_count()
@@ -656,7 +657,6 @@ class ChunkFactory(object):
                     chunk_count
                   )
             self.timer_blocks = self.current_block
-            self.timer = timer_new
 
 
     def finished(self):
@@ -664,7 +664,7 @@ class ChunkFactory(object):
         self.db_manager.state_reset()
         self.db_manager.commit()
 
-        delta = time.time() - self.timer_all
+        delta = self.timer_all.elapsed()
         chunk_count = self.db_manager.chunk_count()
         speed = float(self.current_block + 1) / float(delta)
         print
