@@ -459,8 +459,8 @@ class SqlManager(object):
                  chunk.clock_end,
                  chunk.concat))
 
-                 chunk.id = cur.rowid
-                 chunk.new = False
+            chunk.id = cur.rowid
+            chunk.new = False
         else:
             self.conn.execute(
                 "UPDATE chunk "
@@ -480,23 +480,23 @@ class SqlManager(object):
 
 
     def chunk_delete_id(self, chunk_id):
-    '''Delete row from chunk table by id'''
+        '''Delete row from chunk table by id'''
         self.conn.execute("DELETE FROM chunk WHERE id = ?",
                           (chunk_id,))
 
 
     def chunk_delete(self, chunk):
-    '''Delete row from chunk table by chunk object'''
+        '''Delete row from chunk table by chunk object'''
         self.chunk_delete_id(chunk.id)
 
 
     def chunk_reset(self):
-    '''Delete all rows from chunk table'''
+        '''Delete all rows from chunk table'''
         self.conn.execute("DELETE FROM chunk")
 
 
     def chunk_query_ids(self):
-    '''Return iterator for all chunk ids'''
+        '''Return iterator for all chunk ids'''
         for result in self.conn.execute(
             "SELECT id FROM chunk "
             "ORDERD BY block_start"):
@@ -504,7 +504,7 @@ class SqlManager(object):
 
 
     def chunk_query(self):
-    '''Return iterator for all chunk objects'''
+        '''Return iterator for all chunk objects'''
         for chunk_id in self.chunk_query_ids():
             yield self.chunk_load(chunk_id)
 
@@ -841,7 +841,7 @@ class Main(object):
                                           'count is not 0. Probably the scan '
                                           'finished already. Abort process to '
                                           'avoid loss of data. Use parameter '
-                                          'clear to clear database (you will
+                                          'clear to clear database (you will '
                                           'lose all chunk information).')
                     self.current_block = 0
                 self.db_manager.reset_states()
