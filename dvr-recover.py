@@ -910,24 +910,23 @@ class Main(object):
     def sort(self):
         '''Sort chunks and try to concatenate parts of the same recording'''
         self.db_manager.chunk_reset_concat()
-        for chunk1 in self.db_manager.chunk_query():
-            concat_chunk = None
-            for chunk2 in self.db_manager.chunk_query():
+        for chunk2 in self.db_manager.chunk_query():
+            target = None
+            for chunk1 in self.db_manager.chunk_query():
                 if chunk1.id == chunk2.id:
                     continue
+                new_target = True
                 delta = chunk2.clock_start - chunk1.clock_end
                 if (delta < 0) or (delta > self.max_sort_gap):
                     continue
-                if concat_chunk is None:
-                    concat_chunk = chunk2
-                else:
-                    old_delta = concat_chunk.clock_start - chunk1.clock_end
-                    if delta < old_delta:
-                        concat_chunk = chunk2
-            if concat_chunk is None:
-                continue
-            chunk1.concat = concat_chunk.id
-            self.db_manager.chunk_save(chunk1)
+                if target is not None:
+                    if delta >= chunk2.clock_start - target.clock_end:
+                        new_target = False
+                if new_target:
+                    target = chunk1
+            if target is not None:
+                chunk2.concat = target.id
+                self.db_manager.chunk_save(chunk2)
 
 
     def reset(self):
