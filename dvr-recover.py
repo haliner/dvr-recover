@@ -966,18 +966,29 @@ class Main(object):
         print header_captions
         print header_lines
 
-        fstring = '%4i ' + '| %12i ' * 4 + '| %10s'
-        chunk_line = lambda x: fstring % (index,
-                                          x.block_start,
-                                          x.block_size,
-                                          x.clock_start,
-                                          x.clock_end,
-                                          x.concat is not None)
+        fstr        = ' ' + '| %12i ' * 4 + '| %10s'
+        fstr_main   = '%4i' + fstr
+        fstr_concat = '%4s' + fstr
+
+        chunk_tuple = lambda x, y: (y,
+                                    x.block_start,
+                                    x.block_size,
+                                    x.clock_start,
+                                    x.clock_end,
+                                    x.concat is not None)
         index = 1
         for chunk in self.db_manager.chunk_query():
-#            if chunk.concat is not None:
-#                continue
-            print chunk_line(chunk)
+            if chunk.concat is not None:
+                continue
+            print fstr_main % chunk_tuple(chunk, index)
+
+            def process_concats(chunk):
+                chunk2 = self.db_manager.chunk_query_concat(chunk)
+                if chunk2 is not None:
+                    print fstr_concat % chunk_tuple(chunk2, '#')
+                    process_concats(chunk2)
+
+            process_concats(chunk)
             index += 1
 
 
