@@ -515,7 +515,7 @@ class SqlManager(object):
         '''Return iterator for all chunk ids'''
         for result in self.conn.execute(
             "SELECT id FROM chunk "
-            "ORDER BY block_start"):
+            "ORDER BY clock_start"):
             yield result[0]
 
 
