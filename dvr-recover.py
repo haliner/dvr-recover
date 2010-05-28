@@ -525,6 +525,21 @@ class SqlManager(object):
             yield self.chunk_load(chunk_id)
 
 
+    def chunk_query_concat(self, chunk):
+        '''Return chunk which should be concatenated to the current one'''
+        cur = self.conn.execute(
+            "SELECT id FROM chunk "
+            "WHERE concat = ?",
+            (chunk.id,))
+        result = cur.fetchone()
+        if result is None:
+            return None
+        if cur.fetchone() is not None:
+            raise SqlManagerError('Multiple chunks are referencing the same '
+                                  'chunk for concatenating!')
+        return self.chunk_load(result[0])
+
+
     def state_reset(self):
         '''Delete all entries of state table'''
         self.conn.execute("DELETE FROM state")
