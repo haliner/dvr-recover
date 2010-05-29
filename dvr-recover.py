@@ -435,7 +435,7 @@ class SqlManager(object):
             ")")
         self.conn.execute(
             "CREATE TABLE IF NOT EXISTS state("
-                "key TEXT PRIMARY KEY,"
+                "key TEXT PRIMARY KEY ON CONFLICT REPLACE,"
                 "value"
             ")")
 
@@ -552,17 +552,6 @@ class SqlManager(object):
         self.conn.execute("DELETE FROM state")
 
 
-    def state_init(self):
-        '''Reset state table and set key values to null'''
-        self.state_reset()
-        for i in ('current_block',
-                  'block_start',
-                  'clock_start',
-                  'old_clock',
-                  'time_elapsed'):
-            self.state_insert(i, None)
-
-
     def state_query(self, key):
         '''Return value of state by key'''
         result = self.conn.execute(
@@ -588,15 +577,6 @@ class SqlManager(object):
             "INSERT INTO state "
             "VALUES (?, ?)",
             (key, value))
-
-
-    def state_update(self, key, value):
-        '''Update key/value pair in state table'''
-        self.conn.execute(
-            "UPDATE state "
-            "SET value = ? "
-            "WHERE key = ?",
-            (value, key))
 
 
 
@@ -631,19 +611,19 @@ class ChunkFactory(object):
         else:
             block_start = self.chunk.block_start
             clock_start = self.chunk.clock_start
-        self.db_manager.state_update(
+        self.db_manager.state_insert(
             'current_block',
             self.current_block)
-        self.db_manager.state_update(
+        self.db_manager.state_insert(
             'block_start',
             block_start)
-        self.db_manager.state_update(
+        self.db_manager.state_insert(
             'clock_start',
             clock_start)
-        self.db_manager.state_update(
+        self.db_manager.state_insert(
             'old_clock',
             self.old_clock)
-        self.db_manager.state_update(
+        self.db_manager.state_insert(
             'time_elapsed',
             self.timer_all.elapsed())
         self.db_manager.commit()
@@ -817,7 +797,7 @@ class ChunkFactory(object):
                                   'clear to clear database (you will '
                                   'lose all chunk information).')
             self.current_block = 0
-        self.db_manager.state_init()
+        self.db_manager.state_reset()
         self.timer_blocks = self.current_block
         self.reader.seek(self.current_block * self.blocksize)
         for self.current_block in xrange(self.current_block,
