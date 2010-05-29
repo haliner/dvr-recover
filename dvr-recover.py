@@ -1011,10 +1011,10 @@ class Main(object):
         '''Dump chunk list file in a human readable way'''
         header_lines = ('-' * 5) + ('+' + ('-' * 14)) * 5
         header_captions = (' ' * 5 + ('| %12s ' * 5)[:-1]) % ('Block Start',
-                                                            'Block Size',
-                                                            'Clock Start',
-                                                            'Clock End',
-                                                            'Concatenate')
+                                                              'Block Size',
+                                                              'Clock Start',
+                                                              'Clock End',
+                                                              'Concatenate')
         print header_lines
         print header_captions
         print header_lines
