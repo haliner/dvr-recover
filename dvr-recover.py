@@ -438,6 +438,11 @@ class SqlManager(object):
                 "key TEXT PRIMARY KEY ON CONFLICT REPLACE,"
                 "value"
             ")")
+        self.conn.execute(
+            "CREATE TABLE IF NOT EXISTS setting("
+                "key TEXT PRIMARY KEY ON CONFLICT REPLACE,"
+                "value"
+            ")")
 
 
     def chunk_count(self):
@@ -578,6 +583,37 @@ class SqlManager(object):
             "VALUES (?, ?)",
             (key, value))
 
+
+    def setting_reset(self):
+        '''Delete all entries of setting table'''
+        self.conn.execute("DELETE FROM setting")
+
+
+    def setting_query(self, key):
+        '''Return value of setting by key'''
+        result = self.conn.execute(
+            "SELECT value FROM setting "
+            "WHERE key = ?",
+            (key,)).fetchone()
+        if result is None:
+            return None
+        return result[0]
+
+
+    def setting_delete(self, key):
+        '''Delete entry in setting table by key'''
+        self.conn.execute(
+            "DELETE from setting "
+            "WHERE key = ?",
+            (key,))
+
+
+    def setting_insert(self, key, value):
+        '''Insert key/value pair into setting table'''
+        self.conn.execute(
+            "INSERT INTO setting "
+            "VALUES (?, ?)",
+            (key, value))
 
 
 class ChunkFactory(object):
