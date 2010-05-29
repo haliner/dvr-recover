@@ -863,56 +863,43 @@ class ChunkFactory(object):
 
 class Main(object):
     '''Main class for this application'''
-    __slots__ = ('settings_filename', 'input_filenames', 'db_filename',
-                 'export_dir', 'blocksize', 'min_chunk_size', 'max_create_gap',
-                 'max_sort_gap', 'db_manager')
+    __slots__ = ('input_filenames', 'db_filename', 'export_dir', 'blocksize',
+                 'min_chunk_size', 'max_create_gap', 'max_sort_gap',
+                 'db_manager')
 
     def __init__(self):
-        self.settings_filename = 'dvr-recover.conf'
-        self.input_filenames = []
-        self.db_filename = None
+        self.input_filenames = None
+        self.db_filename = 'dvr-recover.sqlite'
         self.export_dir = None
-        self.blocksize = 2048
-        self.min_chunk_size = 25600 # 50 MiB
-        self.max_create_gap = 90000 # 1 second
-        self.max_sort_gap = 90000   # 1 second
+        self.blocksize = None
+        self.min_chunk_size = None
+        self.max_create_gap = None
+        self.max_sort_gap = None
 
         self.db_manager = SqlManager()
 
 
     def load_settings(self):
         '''Load all settings and set class attributes'''
-        try:
-            f = open(self.settings_filename, 'r')
-        except IOError:
-            raise OptionFileError('Couldn\'t open option file! Use the '
-                                  'sample_settings parameter to create one '
-                                  'with the default values.')
-        for line in f:
-            # strip trailing new line character
-            line = line[:-1]
-            result = line.split('=', 1)
-            # set value if no value is set
-            if len(result) < 2:
-                result.append('')
-            (key, value) = result
-            if key == 'hdd-file':
-                self.input_filenames.append(value)
-            elif key == 'db-file':
-                self.db_filename = value
-            elif key == 'export-dir':
-                self.export_dir = value
-            elif key == 'blocksize':
-                self.blocksize = int(value)
-            elif key == 'min-chunk-size':
-                self.min_chunk_size = int(value)
-            elif key == 'max-create-gap':
-                self.max_create_gap = int(value)
-            elif key == 'max-sort-gap':
-                self.max_sort_gap = int(value)
-            else:
-                print 'Unknown key in settings file:', key
-        f.close()
+        self.input_filenames = self.db_manager.setting_query('input_filenames')
+        self.export_dir = self.db_manager.setting_query('export_dir')
+        self.blocksize = self.db_manager.setting_query('blocksize')
+        self.min_chunk_size = self.db_manager.setting_query('min_chunk_size')
+        self.max_create_gap = self.db_manager.setting_query('max_create_gap')
+        self.max_sort_gap = self.db_manager.setting_query('max_sort_gap')
+
+        if self.input_filenames is not None:
+            self.input_filenames = str(self.input_filenames).split('\0')
+        else:
+            self.input_filenames = []
+        if self.blocksize is None:
+            self.blocksize = 2048
+        if self.min_chunk_size is None:
+            self.min_chunk_size = 25600 # 50 MiB
+        if self.max_create_gap is None:
+            self.max_create_gap = 90000 # 1 second
+        if self.max_sort_gap is None:
+            self.max_sort_gap = 90000 # 1 second
 
 
     def usage(self):
@@ -920,29 +907,63 @@ class Main(object):
         print __doc__
 
 
-    def sample_settings(self):
-        '''Create sample settings file'''
-        f = open(self.settings_filename, 'w')
-        print >>f, 'hdd-file='
-        print >>f, 'db-file=dvr-recover.sqlite'
-        print >>f, 'export-dir='
-        print >>f, 'blocksize=2048'
-        print >>f, 'min-chunk-size=25600'
-        print >>f, 'max-create-gap=90000'
-        print >>f, 'max-sort-gap=90000'
-        f.close()
+    def setup(self):
+        args = sys.argv[2:]
 
+        if len(args) == 0:
+            args.append('show')
 
-    def test_settings(self):
-        '''Read, verify and show settings'''
-        for filename in self.input_filenames:
-            print 'input-file:', filename
-        print 'chunk-file:', self.chunk_filename
-        print 'export-dir:', self.export_dir
-        print 'blocksize:', self.blocksize
-        print 'min-chunk-size:', self.min_chunk_size
-        print 'max-create-gap:', self.max_create_gap
-        print 'max-sort-gap:', self.max_sort_gap
+        if (args[0] == 'input') and (len(args) > 1):
+            args[0:2] = (args[0] + ' '+ args[1],)
+
+        parameters = {
+                'show': 0,
+                'input add': 1,
+                'input del': 1,
+                'input clear': 0,
+                'blocksize': 1,
+                'min_chunk_size': 1,
+                'max_create_gap': 1,
+                'max_sort_gap': 1,
+                'export_dir': 1,
+            }
+
+        if args[0] not in parameters:
+            print 'Unknown argument: %s' % args[0]
+            return
+
+        if len(args) - 1 != parameters[args[0]]:
+            print ('Invalid argument count -- parameter "%s" '
+                   'expects %i argument(s).') % (args[0], parameters[args[0]])
+            return
+
+        if args[0] in ('blocksize', 'min_chunk_size', 'max_create_gap',
+                       'max_sort_gap'):
+            self.db_manager.setting_insert(args[0], int(args[1]))
+        elif args[0] in ('export_dir'):
+            self.db_manager.setting_insert(args[0], args[1])
+        elif args[0] in 'input clear':
+            self.db_manager.setting_insert('input_filenames', None)
+        elif args[0] in ('input add', 'input del'):
+            if args[0] == 'input add':
+                self.input_filenames.append(args[1])
+            else:
+                self.input_filenames.remove(args[1])
+            if len(self.input_filenames) > 0:
+                binary = buffer('\0'.join(self.input_filenames))
+            else:
+                binary = None
+            self.db_manager.setting_insert('input_filenames', binary)
+        elif args[0] == 'show':
+            for filename in self.input_filenames:
+                print 'input_file:', filename
+            if len(self.input_filenames) == 0:
+                print 'No input files specified!'
+            print 'export_dir:', self.export_dir
+            print 'blocksize:', self.blocksize
+            print 'min_chunk_size:', self.min_chunk_size
+            print 'max_create_gap:', self.max_create_gap
+            print 'max_sort_gap:', self.max_sort_gap
 
 
     def create(self):
@@ -1082,11 +1103,10 @@ class Main(object):
         if len(sys.argv) < 2:
             self.usage()
             return
-        if sys.argv[1] in ('sample_settings', 'test_settings', 'create',
-                           'sort', 'reset', 'clear', 'show', 'export'):
-            if sys.argv[1] != 'sample_settings':
-                self.load_settings()
+        if sys.argv[1] in ('create', 'sort', 'reset', 'clear', 'show',
+                           'export', 'setup'):
             self.db_manager.open(self.db_filename)
+            self.load_settings()
             func = getattr(self, sys.argv[1])
             func()
             self.db_manager.close()
