@@ -213,6 +213,8 @@ import time
 
 class DvrRecoverError(Exception):
     '''Base class for all Exceptions in this module'''
+    __slots__ = ('msg',)
+
     def __init__(self, msg):
         self.msg = msg
 
@@ -263,6 +265,7 @@ class Chunk(object):
 class Timer(object):
     '''Time measurement'''
     __slots__ = ('timecode')
+
     def __init__(self):
         self.reset()
 
@@ -281,6 +284,8 @@ class Timer(object):
 
 class FileReader(object):
     '''Handle multiple input streams as one big file'''
+    __slots__ = ('parts', 'current_file', 'file')
+
     def __init__(self, filenames):
         '''Initialize FileReader'''
         self.parts = []
@@ -392,6 +397,8 @@ class FileReader(object):
 
 class SqlManager(object):
     '''Interface to access data via SQL queries'''
+    __slots__ = ('conn',)
+
     def __init__(self):
         '''Initialize SqlManager'''
         self.conn = None
@@ -595,6 +602,10 @@ class SqlManager(object):
 
 class ChunkFactory(object):
     '''Extract information of all chunks'''
+    __slots__ = ('current_block', 'clock', 'old_clock', 'timer', 'timer_all',
+                 'timer_blocks', 'blocksize', 'min_chunk_size', 'max_gap',
+                 'db_manager', 'reader', 'input_blocks', 'chunk')
+
     def __init__(self, main, reader):
         self.current_block = 0
         self.clock = 0
@@ -836,6 +847,10 @@ class ChunkFactory(object):
 
 class Main(object):
     '''Main class for this application'''
+    __slots__ = ('settings_filename', 'input_filenames', 'db_filename',
+                 'export_dir', 'blocksize', 'min_chunk_size', 'max_create_gap',
+                 'max_sort_gap', 'db_manager')
+
     def __init__(self):
         self.settings_filename = 'dvr-recover.conf'
         self.input_filenames = []
