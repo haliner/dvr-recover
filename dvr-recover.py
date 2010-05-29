@@ -994,61 +994,54 @@ class Main(object):
 
     def export(self):
         '''export single chunk or all chunks'''
-        def copy_chunk(reader, outf, chunk):
-            '''Copy data from inf to outf with help of chunk information'''
-            print 'Chunk start: %i' % chunk.block_start
-            print 'Chunk size:  %i' % chunk.block_size
-            timer = time.time()
+        def export_chunk(reader, outf, chunk, part):
+            '''Write chunk and concats to output file'''
+            timer = Timer()
             reader.seek(chunk.block_start * self.blocksize)
             for i in xrange(0, chunk.block_size):
                 buf = reader.read(self.blocksize)
                 if len(buf) != self.blocksize:
                     raise UnexpectedResultError('len(buf) != self.blocksize')
                 outf.write(buf)
-            delta = time.time() - timer
+            delta = timer.elapsed()
             speed = float(chunk.block_size) / float(delta)
-            print ' %.2fs (%.2f blocks/s; %.2f MiB/s).' % \
-                  (delta,
+            print 'Part #%i: %.2fs (%.2f blocks/s; %.2f MiB/s).' % \
+                  (part,
+                   delta,
                    speed,
                    float(speed * self.blocksize) / float(1024**2))
-            print
+            chunk2 = self.db_manager.chunk_query_concat(chunk)
+            if chunk2 is not None:
+                export_chunk(reader, outf, chunk2, part+1)
 
-        def extract_chunk(chunk_index):
-            '''Extract single chunk with all its childs'''
-            chunk = self.chunks[chunk_index]
-            print 'Current chunk: #%i' % chunk_index
-            if chunk.concat:
-                raise ExportError(
-                      'Specified chunk should be concatenated to another. ' \
-                      'Please specify a starting chunk (concatenate must be ' \
-                      'False!).'
-                      )
-
+        def export_file(chunk, index):
+            '''Open output file and write chunks'''
+            print 'Exporting file #%i' % index
             reader = FileReader(self.input_filenames)
-            outf = open(os.path.join(self.export_dir, 'chunk_%04i.mpg' % \
-                                  chunk_index), 'wb')
-            copy_chunk(reader, outf, chunk)
-            for i in xrange(chunk_index + 1, len(self.chunks)):
-                chunk = self.chunks[i]
-                if chunk.concat:
-                    print 'Concatenate chunk: #%i' % i
-                    copy_chunk(reader, outf, chunk)
-                else:
-                    break;
+            outf = open(os.path.join(self.export_dir, 'file_%04i.mpg' % index),
+                        'wb')
+            export_chunk(reader, outf, chunk, 1)
             outf.close()
             reader.close()
+            print
 
         if len(sys.argv) < 3:
             # no special chunk specified -> export all
-            for i in xrange(0, self.db_manager):
-                if not self.chunks[i].concat:
-                    extract_chunk(i)
+            index = 1
+            for chunk in self.db_manager.chunk_query():
+                if chunk.concat is None:
+                    export_file(chunk, index)
+                    index += 1
         else:
             # only export specified chunk
-            i = int(sys.argv[2])
-            if (i >= 0) and (i < len(self.chunks)):
-                extract_chunk(i)
-            else:
+            index = 1
+            found = False
+            for chunk in self.db_manager.chunk_query():
+                if index == int(sys.argv[2]):
+                    found = True
+                    export_file(chunk, index)
+                index += 1
+            if not found:
                 raise ExportError('Incorrect chunk specified!')
 
 
