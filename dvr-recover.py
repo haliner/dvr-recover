@@ -659,8 +659,8 @@ class ChunkFactory(object):
         self.current_block = current_block
         if (block_start is not None) and (clock_start is not None):
             self.chunk = Chunk()
-            self.block_start = block_start
-            self.clock_start = clock_start
+            self.chunk.block_start = block_start
+            self.chunk.clock_start = clock_start
         self.old_clock = old_clock
         if time_elapsed is not None:
             self.timer_all.timecode -= time_elapsed
