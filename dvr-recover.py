@@ -376,7 +376,7 @@ class FileReader(object):
     def read(self, size):
         '''Read data from stream, automatically switch stream if necessary'''
         if self.file is None:
-            return ''
+            raise FileReaderError('No files are open!')
         buf = self.file.read(size)
         delta = size - len(buf)
         if delta != 0:
