@@ -1,40 +1,40 @@
 9999-99-99  Stefan Haller  <haliner@googlemail.com>
 
-	Version 0.5:
-	* dvr-recover.py: Minor Bugfixes.
-	* dvr-recover.py: Direct access to Windows device files forbidden.
-	* dvr-recover.py: Use Sqlite3 database instead of chunk list file.
+  Version 0.5:
+  * dvr-recover.py: Minor Bugfixes.
+  * dvr-recover.py: Direct access to Windows device files forbidden.
+  * dvr-recover.py: Use Sqlite3 database instead of chunk list file.
 
 
 2010-05-11  Stefan Haller  <haliner@googlemail.com>
 
-	Version 0.4:
-	* dvr-recover.py: test_settings: Don't print whole list of input filenames,
-	  print only one filename per line.
-	* dvr-recover.py: create: Try to write empty chunk list before processing
-	  input file, so the script fails before the time-consuming process.
+  Version 0.4:
+  * dvr-recover.py: test_settings: Don't print whole list of input filenames,
+    print only one filename per line.
+  * dvr-recover.py: create: Try to write empty chunk list before processing
+    input file, so the script fails before the time-consuming process.
 
 
 2010-05-10  Stefan Haller  <haliner@googlemail.com>
 
-	Version 0.3:
-	* dvr-recover.py: Catch error while opening settings file.
-	* dvr-recover.py: Don't load settings file for parameter sample_settings.
-	* dvr-recover.py: Replaced term "option file" with "settings file" to
-	  reduce phrases with the same meaning.
-	* dvr-recover.py: Added information concerning square brackets in usage
-	  message respectively docstring.
+  Version 0.3:
+  * dvr-recover.py: Catch error while opening settings file.
+  * dvr-recover.py: Don't load settings file for parameter sample_settings.
+  * dvr-recover.py: Replaced term "option file" with "settings file" to
+    reduce phrases with the same meaning.
+  * dvr-recover.py: Added information concerning square brackets in usage
+    message respectively docstring.
 
 
 2010-05-09  Stefan Haller  <haliner@googlemail.com>
 
-	Version 0.2:
-	* dvr-recover.py: FileReader class added.
-	* dvr-recover.py: Handle multiple input streams.
-	* dvr-recover.py: Docstrings added.
+  Version 0.2:
+  * dvr-recover.py: FileReader class added.
+  * dvr-recover.py: Handle multiple input streams.
+  * dvr-recover.py: Docstrings added.
 
 
 2010-04-29  Stefan Haller  <haliner@googlemail.com>
 
-	Version 0.1:
-	* Initial Release
+  Version 0.1:
+  * Initial Release
