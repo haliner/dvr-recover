@@ -952,6 +952,7 @@ class Main(object):
     def clear(self):
         '''Delete all chunks'''
         self.db_manager.chunk_reset()
+        self.db_manager.state_reset()
 
 
     def show(self):
