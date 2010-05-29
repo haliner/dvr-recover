@@ -78,7 +78,7 @@ Here is a full listing of all available settings:
                          parameter del:     delete one file from list of input
                                             files
 
-  exportdir [string]     Defines where the output should be written to. Must
+  export_dir [string]    Defines where the output should be written to. Must
                          match an existing path. Both relative and absolute
                          paths are accepted. Current directory is "./".
 
@@ -87,7 +87,8 @@ Here is a full listing of all available settings:
                          The default value is 2048 bytes. Probably this value
                          should work, but if not, you're free to tune it.
 
-  minchunksize [integer] If the script finds chunks smaller than this size
+  min_chunk_size [integer]
+                         If the script finds chunks smaller than this size
                          (value must be given in blocks!), it will ignore them
                          silently. If this value is too small, the script
                          will find chunks that were deleted or can't be used.
@@ -95,12 +96,14 @@ Here is a full listing of all available settings:
                          will be ignored. The default value is 25600 blocks
                          (50 MiB by blocksize of 2048 bytes).
 
-  maxcreategap [integer] The script will split the stream into two chunks if
+  max_create_gap [integer]
+                         The script will split the stream into two chunks if
                          it finds two frames where the timecode differs more
                          than this value. MPEG uses a clock of 90 kHz.
                          So the default value of 90,000 ticks equals one second.
 
-  maxsortgap [integer]   See maxcreategap. This value is used to concatenate
+  max_sort_gap [integer]
+                         See maxcreategap. This value is used to concatenate
                          two chunks if the difference of the timecode is smaller
                          than this value. The default value of 90,000 ticks
                          equals one second.
@@ -164,7 +167,7 @@ Step 4: Export chunks
 Additional Parameters:
 ----------------------
 
-setup [setup-args]        Manage all settings necessary for a working script.
+setup [setup-args]        Manages all settings necessary for a working script.
 
 setup show                Show all settings.
 setup reset               Reset all settings to default values.
@@ -185,8 +188,7 @@ Usage:
 ------
 
   usage
-  sample_settings
-  test_settings
+  setup [setup-args]
   create
   sort
   reset
