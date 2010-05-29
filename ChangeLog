@@ -4,6 +4,8 @@
   * dvr-recover.py: Minor Bugfixes.
   * dvr-recover.py: Direct access to Windows device files forbidden.
   * dvr-recover.py: Use Sqlite3 database instead of chunk list file.
+  * dvr-recover.py: All settings are stored in database now. Use the parameter
+    "setup" to manipulate the preferences.
 
 
 2010-05-11  Stefan Haller  <haliner@googlemail.com>
