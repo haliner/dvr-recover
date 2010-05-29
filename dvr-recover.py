@@ -1073,5 +1073,4 @@ if __name__ == '__main__':
     try:
         Main().run()
     except KeyboardInterrupt:
-        print 'KeyboardInterrupt'
-        pass
+        print '\nKeyboardInterrupt'
