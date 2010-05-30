@@ -223,9 +223,6 @@ class DvrRecoverError(Exception):
     def __str__(self):
         return self.msg
 
-class OptionFileError(DvrRecoverError):
-    pass
-
 class SqlManagerError(DvrRecoverError):
     pass
 
