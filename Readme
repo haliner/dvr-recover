@@ -63,6 +63,30 @@
 
 
 
+ Usage
+~~~~~~~
+
+ If you execute the script without any parameters, the script will print the
+ usage message where all parameters, switches and settings are explained in
+ detail.
+
+ Executing the script is very easy: Simply open a terminal (on Windows:
+ [Win] + [R] -> enter "cmd" and press enter). At first you have to switch to the
+ directory where the script is located and then you can fire up the Python
+ interpreter.
+
+ Linux:
+
+   cd /path/to/script/
+   python dvr-recover.py [parameters]
+
+ Windows:
+
+   cd C:\Path\to\script\
+   python dvr-recover.py [parameters]
+
+
+
  Homepage and Contact
 ~~~~~~~~~~~~~~~~~~~~~~
 
