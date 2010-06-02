@@ -55,6 +55,14 @@
 
 
 
+ System Requirements
+~~~~~~~~~~~~~~~~~~~~~
+
+ To run the script you need a Python interpreter (2.x, tested with 2.5 and
+ higher).
+
+
+
  Homepage and Contact
 ~~~~~~~~~~~~~~~~~~~~~~
 
