@@ -925,6 +925,7 @@ class Main(object):
 
         parameters = {
                 'show': 0,
+                'reset': 0,
                 'input add': 1,
                 'input del': 1,
                 'input clear': 0,
@@ -971,6 +972,8 @@ class Main(object):
             print 'min_chunk_size:', self.min_chunk_size
             print 'max_create_gap:', self.max_create_gap
             print 'max_sort_gap:', self.max_sort_gap
+        elif args[0] == 'reset':
+            self.db_manager.setting_reset()
 
 
     def create(self):
