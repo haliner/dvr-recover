@@ -211,6 +211,7 @@ Tested devices:
   * Panasonic DMR-EH55
   * Panasonic DMR-EH56
   * Panasonic DMR-EH57
+  * Panasonic DMR-EX85
 
 '''
 
