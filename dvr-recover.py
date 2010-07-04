@@ -48,8 +48,8 @@ name "dvr-recover.sqlite". All settings and data will be stored in this
 database.
 
 
-Settings file
--------------
+Setup
+-----
 
 Before you can use dvr-recover you will have to change the default settings.
 You can do this by simply calling the script with the parameter "setup"
