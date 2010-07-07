@@ -561,6 +561,18 @@ class SqlManager(object):
         return self.chunk_load(result[0])
 
 
+    def chunk_fix_multiple_concats(self):
+        '''Fix multiple chunks referencing the same chunk in concat field'''
+        self.conn.execute(
+            "UPDATE chunk "
+            "SET concat = null "
+            "WHERE id IN "
+             "("
+              "SELECT a.id FROM chunk a "
+              "INNER JOIN chunk b ON a.id != b.id AND a.concat = b.concat"
+             ")")
+
+
     def state_reset(self):
         '''Delete all entries of state table'''
         self.conn.execute("DELETE FROM state")
@@ -1006,6 +1018,7 @@ class Main(object):
             if target is not None:
                 chunk2.concat = target.id
                 self.db_manager.chunk_save(chunk2)
+        self.db_manager.chunk_fix_multiple_concats();
 
 
     def reset(self):
