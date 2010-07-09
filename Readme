@@ -235,6 +235,37 @@
 
 
 
+ Tuning the parameters
+~~~~~~~~~~~~~~~~~~~~~~~
+
+ Is there any possibility to tune the script and recover more files? Yes, it is!
+ 
+ You can tune the process of chunk detection with parameters. The most important
+ parameter is "min_chunk_size". The smaller the value is, the more the script
+ finds. But the problem is that the possibility to find "garbage" is even
+ higher.
+
+ The default setting is that the program ignores chunks smaller than 50 MB
+ (25600 blocks). If you set it to 0, the script will find everything, even if
+ it's only one frame of a recording. If you play a bit with this parameter you
+ maybe will recover more recordings completely.
+ 
+ IMPORTANT: After changing the parameters run the complete scan again (parameter
+            "create")!
+
+ To change the setting run:
+
+   python dvr-recover.py setup min_chunk_size [NEW_VALUE]
+
+ [NEW_VALUE] must be given in blocks.
+ Blocks * blocks size = size in byte. The default block size is 2048 byte.
+
+ I tried to set the default value to a sensible default. If somebody can prove
+ that a smaller value is better, I'll set the default value for later releases
+ to a lower value.
+
+
+
  Homepage and Contact
 ~~~~~~~~~~~~~~~~~~~~~~
 
