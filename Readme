@@ -156,7 +156,7 @@
  Use the parameter "clear" to clear the list of input files. Also available
  are the parameters "add" and "del" -- both take a filename as argument.
 
- If you want to reset all settings, you have to use the parameter "clear":
+ If you want to reset all settings, you have to use the parameter "reset":
 
    python dvr-recover.py setup reset
 
