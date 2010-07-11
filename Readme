@@ -239,7 +239,7 @@
 ~~~~~~~~~~~~~~~~~~~~~~~
 
  Is there any possibility to tune the script and recover more files? Yes, it is!
- 
+
  You can tune the process of chunk detection with parameters. The most important
  parameter is "min_chunk_size". The smaller the value is, the more the script
  finds. But the problem is that the possibility to find "garbage" is even
@@ -249,7 +249,7 @@
  (25600 blocks). If you set it to 0, the script will find everything, even if
  it's only one frame of a recording. If you play a bit with this parameter you
  maybe will recover more recordings completely.
- 
+
  IMPORTANT: After changing the parameters run the complete scan again (parameter
             "create")!
 
