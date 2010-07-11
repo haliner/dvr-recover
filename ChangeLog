@@ -1,3 +1,12 @@
+2010-07-11  Stefan Haller  <haliner@googlemail.com>
+
+  Version 0.6:
+  * dvr-recover.py: Binary operations simplified.
+  * dvr-recover.py: Fixed bug throwing exception "__main__.SqlManagerError:
+    Multiple chunks are referencing the same chunk for concatenating!".
+  * Readme: "Tuning" section added.
+
+
 2010-06-17  Stefan Haller  <haliner@googlemail.com>
 
   Version 0.5:
