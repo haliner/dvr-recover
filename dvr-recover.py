@@ -837,8 +837,7 @@ class ChunkFactory(object):
                                     self.chunk.block_start
             self.chunk.clock_end = self.old_clock
 
-            if (self.chunk.block_size >= self.min_chunk_size):
-                self.db_manager.chunk_save(self.chunk)
+            self.db_manager.chunk_save(self.chunk)
             self.chunk = None
 
 
@@ -1072,6 +1071,14 @@ class Main(object):
 
     def export(self):
         '''export single chunk or all chunks'''
+        def file_size(chunk):
+            '''Return the size of chunk and childs'''
+            chunk2 = self.db_manager.chunk_query_concat(chunk)
+            if chunk2 is None:
+                return chunk.block_size
+            else:
+                return chunk.block_size + check_size(chunk2)
+
         def export_chunk(reader, outf, chunk, part):
             '''Write chunk and concats to output file'''
             timer = Timer()
@@ -1095,12 +1102,16 @@ class Main(object):
         def export_file(chunk, index):
             '''Open output file and write chunks'''
             print 'Exporting file #%i' % index
-            reader = FileReader(self.input_filenames)
-            outf = open(os.path.join(self.export_dir, 'file_%04i.mpg' % index),
-                        'wb')
-            export_chunk(reader, outf, chunk, 1)
-            outf.close()
-            reader.close()
+            if file_size(chunk) < self.min_chunk_size:
+                print 'Skipping...'
+            else:
+                reader = FileReader(self.input_filenames)
+                outf = open(os.path.join(self.export_dir, 'file_%04i.mpg' %
+                                                          index),
+                            'wb')
+                export_chunk(reader, outf, chunk, 1)
+                outf.close()
+                reader.close()
             print
 
         if len(sys.argv) < 3:
