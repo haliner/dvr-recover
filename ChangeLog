@@ -1,3 +1,8 @@
+  * dvr-recover.py: Split script. The new source files are now located in the
+    directory "dvrrecover". Now dvr-recover.py is only a wrapper script
+    around dvrrecover.cmdline.CmdInterface class.
+
+
 2010-07-11  Stefan Haller  <haliner@googlemail.com>
 
   Version 0.6:
