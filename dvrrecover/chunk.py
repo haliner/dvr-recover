@@ -18,7 +18,7 @@
 
 
 class Chunk(object):
-    '''Object to save information about one chunk'''
+    """Object to save information about one chunk"""
     __slots__ = ('id',
                  'block_start',
                  'block_size',
