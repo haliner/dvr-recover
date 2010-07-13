@@ -19,8 +19,15 @@
 """The core module for dvr-recover."""
 
 
+from dvrrecover.database import DatabaseManager
+
+
 class DvrRecover(object):
     """Core class"""
+
+    def __init__(self):
+        self.db = DatabaseManager()
+
 
     def create(self):
         pass
