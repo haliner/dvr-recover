@@ -17,22 +17,13 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from dvrrecover.config import ConfigManager
-from dvrrecover.database import DatabaseManager
+class ConfigManager(object):
+    """Manage program configuration"""
 
+    def __init__(self, db):
+        """Initialize ConfigManager"""
+        self.db = db
 
-class DvrRecover(object):
-    """Core class"""
-
-    def __init__(self):
-        db = DatabaseManager()
-        self.config = ConfigManager(db)
-
-
-    def initialize(self):
-        self.config.db.open('dvr-recover.sqlite')
-        self.config.load()
-
-
-    def finalize(self):
-        self.config.db.close()
+    def load(self):
+        """Load settings from database"""
+        pass

@@ -76,8 +76,10 @@ class CmdInterface(object):
 
             if arg in ('create', 'sort', 'reset', 'clear', 'show', 'export',
                        'setup'):
+                self.core.initialize()
                 func = getattr(self, arg)
                 func()
+                self.core.finalize()
             else:
                 self.usage()
         except KeyboardInterrupt:
