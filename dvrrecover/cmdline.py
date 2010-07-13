@@ -18,33 +18,41 @@
 
 """This module contains a commandline interface for dvr-recover."""
 
+
 import sys
+
+from dvrrecover.core import DvrRecover
+
 
 class CmdInterface(object):
     """Commandline interface for dvr-recover."""
 
+    def __init__(self):
+        self.core = DvrRecover()
+
+
     def create(self):
-        pass
+        self.core.create
 
 
     def sort(self):
-        pass
+        self.core.sort()
 
 
     def reset(self):
-        pass
+        self.core.reset()
 
 
     def clear(self):
-        pass
+        self.core.clear()
 
 
     def show(self):
-        pass
+        self.core.show()
 
 
     def export(self):
-        pass
+        self.core.export()
 
 
     def setup(self):
