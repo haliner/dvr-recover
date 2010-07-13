@@ -30,27 +30,27 @@ class CmdInterface(object):
 
 
     def create(self):
-        self.core.create
+        pass
 
 
     def sort(self):
-        self.core.sort()
+        pass
 
 
     def reset(self):
-        self.core.reset()
+        pass
 
 
     def clear(self):
-        self.core.clear()
+        pass
 
 
     def show(self):
-        self.core.show()
+        pass
 
 
     def export(self):
-        self.core.export()
+        pass
 
 
     def setup(self):

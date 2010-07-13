@@ -25,31 +25,3 @@ class DvrRecover(object):
 
     def __init__(self):
         self.db = DatabaseManager()
-
-
-    def create(self):
-        pass
-
-
-    def sort(self):
-        pass
-
-
-    def reset(self):
-        pass
-
-
-    def clear(self):
-        pass
-
-
-    def show(self):
-        pass
-
-
-    def export(self):
-        pass
-
-
-    def setup(self):
-        pass
