@@ -21,7 +21,7 @@
 
 class DvrRecover(object):
     """Core class"""
-    
+
     def create(self):
         pass
 
