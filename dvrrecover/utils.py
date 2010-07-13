@@ -19,7 +19,7 @@
 """This modules contains various useful utilities"""
 
 class Timer(object):
-    '''Time measurement'''
+    """Time measurement"""
     __slots__ = ('timecode')
 
     def __init__(self):
