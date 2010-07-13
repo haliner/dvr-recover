@@ -19,6 +19,7 @@
 
 class ConfigManager(object):
     """Manage program configuration"""
+    __slots__ = ('db',)
 
     def __init__(self, db):
         """Initialize ConfigManager"""

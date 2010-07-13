@@ -24,6 +24,7 @@ from dvrrecover.core import DvrRecover
 
 class CmdInterface(object):
     """Commandline interface for dvr-recover."""
+    __slots__ = ('argv', 'core')
 
     def __init__(self):
         self.core = DvrRecover()

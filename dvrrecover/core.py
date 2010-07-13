@@ -23,6 +23,7 @@ from dvrrecover.database import DatabaseManager
 
 class DvrRecover(object):
     """Core class"""
+    __slots__ = ('config',)
 
     def __init__(self):
         db = DatabaseManager()
