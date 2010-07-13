@@ -19,9 +19,6 @@
 import sqlite3
 
 
-"""This module contains functionality for handling database connections."""
-
-
 class DatabaseManager(object):
     """Interface to access data via SQL queries"""
     __slots__ = ('conn',)
