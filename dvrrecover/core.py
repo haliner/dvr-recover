@@ -26,14 +26,17 @@ class DvrRecover(object):
     __slots__ = ('config',)
 
     def __init__(self):
+        """Initialize DvrRecover"""
         db = DatabaseManager()
         self.config = ConfigManager(db)
 
 
     def initialize(self):
+        """Initialization -- must be undone with finalize()"""
         self.config.db.open('dvr-recover.sqlite')
         self.config.load()
 
 
     def finalize(self):
+        """Deinitialization"""
         self.config.db.close()

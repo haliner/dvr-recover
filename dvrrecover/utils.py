@@ -22,12 +22,15 @@ class Timer(object):
     __slots__ = ('timecode')
 
     def __init__(self):
+        """Initialize Timer"""
         self.reset()
 
     def reset(self):
+        """Remember current time"""
         self.timecode = time.time()
 
     def elapsed(self, reset = False):
+        """Return elapsed time since last reset"""
         result = time.time() - self.timecode
         if reset:
             self.reset()
