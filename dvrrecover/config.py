@@ -24,8 +24,6 @@ max_create_gap  = 'max_create_gap'
 max_sort_gap    = 'max_sort_gap'
 
 
-
-
 class ConfigManager(object):
     """Manage program configuration"""
     __slots__ = ('db', 'configs')
