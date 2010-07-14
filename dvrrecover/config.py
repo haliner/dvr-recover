@@ -16,15 +16,43 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+input_filenames = 'input_filenames'
+blocksize       = 'blocksize'
+exportdir       = 'exportdir'
+min_chunk_size  = 'min_chunk_size'
+max_create_gap  = 'max_create_gap'
+max_sort_gap    = 'max_sort_gap'
+
+
+
 
 class ConfigManager(object):
     """Manage program configuration"""
-    __slots__ = ('db',)
+    __slots__ = ('db', 'configs')
+
+
+    defaults = {input_filenames: None,
+                blocksize: 2048,
+                exportdir: None,
+                min_chunk_size: 2560,
+                max_create_gap: 90000,
+                max_sort_gap: 90000}
+
 
     def __init__(self, db):
         """Initialize ConfigManager"""
         self.db = db
+        self.configs = {input_filenames: None,
+                        blocksize: None,
+                        exportdir: None,
+                        min_chunk_size: None,
+                        max_create_gap: None,
+                        max_sort_gap: None}
+
 
     def load(self):
         """Load settings from database"""
-        pass
+        for key in self.configs.iterkeys():
+            self.configs[key] = self.db.setting_query(key)
+            if self.configs[key] is None:
+                self.configs[key] = self.defaults[key]
