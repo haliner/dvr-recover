@@ -56,3 +56,8 @@ class ConfigManager(object):
             self.configs[key] = self.db.setting_query(key)
             if self.configs[key] is None:
                 self.configs[key] = self.defaults[key]
+        if self.configs[input_filenames] is None:
+            self.configs[input_filenames] = []
+        else:
+            self.configs[input_filenames] = \
+                str(self.configs[input_filenames]).split('\0')
