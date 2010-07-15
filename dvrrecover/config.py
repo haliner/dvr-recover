@@ -84,8 +84,8 @@ class ConfigManager(object):
         value = self.configs[key]
         if value is None:
             value = self.defaults[key]
-            if type(value) is list:
-                value = [i for i in value]
+        if type(value) is list:
+            value = [i for i in value]
         return value
 
 
