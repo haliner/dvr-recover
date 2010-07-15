@@ -20,6 +20,7 @@
 import sys
 
 from dvrrecover.core import DvrRecover
+from dvrrecover import config
 
 
 class CmdInterface(object):
@@ -55,7 +56,67 @@ class CmdInterface(object):
 
 
     def setup(self):
-        pass
+        args = self.argv[1:]
+
+        if len(args) == 0:
+            args.append('show')
+
+        if (args[0] == 'input') and (len(args) > 1):
+            args[0:2] = (args[0] + ' '+ args[1],)
+
+        parameters = {
+                'show': 0,
+                'reset': 0,
+                'input': 1,
+                'input add': 1,
+                'input del': 1,
+                'input clear': 0,
+                config.blocksize: 1,
+                config.min_chunk_size: 1,
+                config.max_create_gap: 1,
+                config.max_sort_gap: 1,
+                config.export_dir: 1
+            }
+
+        if args[0] not in parameters:
+            print "Unknown argument:", args[0]
+            return
+
+        if len(args) - 1 != parameters[args[0]]:
+            print ("Invalid argument count -- parameter \"%s\" "
+                   "expects %i argument(s).") % (args[0], parameters[args[0]])
+            return
+
+        if args[0] in (config.blocksize,
+                       config.min_chunk_size,
+                       config.max_create_gap,
+                       config.max_sort_gap):
+            self.core.config.set(args[0], int(args[1]))
+        elif args[0] == config.export_dir:
+            self.core.config.set(args[0], args[1])
+        elif args[0] in 'input clear':
+            self.core.config.set(config.input_filenames, [])
+        elif args[0] in ('input add', 'input del'):
+            filenames = self.core.config.get(config.input_filenames)
+            if args[0] == 'input add':
+                filenames.append(args[1])
+            else:
+                filenames.remove(args[1])
+            self.core.config.set(config.input_filenames, filenames)
+        elif args[0] == 'show':
+            filenames = self.core.config.get(config.input_filenames)
+            for filename in filenames:
+                print "input_filename:", filename
+            if len(filenames) == 0:
+                print "No input files specified!"
+            for settings in (config.blocksize,
+                            config.export_dir,
+                            config.min_chunk_size,
+                            config.max_create_gap,
+                            config.max_sort_gap):
+                print settings + ":", self.core.config.get(settings)
+        elif args[0] == 'reset':
+            self.core.config.db.setting_reset()
 
 
     def usage(self):
