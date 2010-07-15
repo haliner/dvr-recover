@@ -29,7 +29,7 @@ class ConfigManager(object):
     __slots__ = ('db', 'configs')
 
 
-    defaults = {input_filenames: None,
+    defaults = {input_filenames: [],
                 blocksize: 2048,
                 exportdir: None,
                 min_chunk_size: 2560,
@@ -48,14 +48,45 @@ class ConfigManager(object):
                         max_sort_gap: None}
 
 
+    def encode(self, key):
+        """Prepare value for storage in database"""
+        value = self.configs[key]
+        if value is None:
+            return none
+        elif key == input_filenames:
+            return buffer('\0'.join(value))
+        else:
+            return value
+
+
+    def decode(self, key, value):
+        """Convert value from database to a Python equivalent"""
+        if value is None:
+            return None
+        elif key == input_filenames:
+            return str(value).split('\0')
+        else:
+            return value
+
+
     def load(self):
         """Load settings from database"""
         for key in self.configs.iterkeys():
-            self.configs[key] = self.db.setting_query(key)
-            if self.configs[key] is None:
-                self.configs[key] = self.defaults[key]
-        if self.configs[input_filenames] is None:
-            self.configs[input_filenames] = []
-        else:
-            self.configs[input_filenames] = \
-                str(self.configs[input_filenames]).split('\0')
+            self.configs[key] = self.decode(key,
+                                            self.db.setting_query(key))
+
+
+    def get(self, key):
+        """Return value of config specified by key"""
+        value = self.configs[key]
+        if value is None:
+            value = self.defaults[key]
+            if type(value) is list:
+                value = [i for i in value]
+        return value
+
+
+    def set(self, key, value):
+        """Change setting and update database"""
+        self.configs[key] = value
+        self.db.settings_insert(key, value)
