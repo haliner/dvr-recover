@@ -56,6 +56,7 @@ class CmdInterface(object):
 
 
     def setup(self):
+        """Parse cmdline arguments and provide interface to configuration"""
         args = self.argv[1:]
 
         if len(args) == 0:
