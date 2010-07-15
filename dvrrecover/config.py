@@ -18,7 +18,7 @@
 
 input_filenames = 'input_filenames'
 blocksize       = 'blocksize'
-exportdir       = 'exportdir'
+export_dir      = 'export_dir'
 min_chunk_size  = 'min_chunk_size'
 max_create_gap  = 'max_create_gap'
 max_sort_gap    = 'max_sort_gap'
@@ -31,7 +31,7 @@ class ConfigManager(object):
 
     defaults = {input_filenames: [],
                 blocksize: 2048,
-                exportdir: None,
+                export_dir: None,
                 min_chunk_size: 2560,
                 max_create_gap: 90000,
                 max_sort_gap: 90000}
@@ -42,7 +42,7 @@ class ConfigManager(object):
         self.db = db
         self.configs = {input_filenames: None,
                         blocksize: None,
-                        exportdir: None,
+                        export_dir: None,
                         min_chunk_size: None,
                         max_create_gap: None,
                         max_sort_gap: None}
