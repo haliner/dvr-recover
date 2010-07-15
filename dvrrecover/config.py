@@ -92,4 +92,4 @@ class ConfigManager(object):
     def set(self, key, value):
         """Change setting and update database"""
         self.configs[key] = value
-        self.db.settings_insert(key, value)
+        self.db.setting_insert(key, self.encode(key))
