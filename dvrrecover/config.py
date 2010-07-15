@@ -64,7 +64,10 @@ class ConfigManager(object):
         if value is None:
             return None
         elif key == input_filenames:
-            return str(value).split('\0')
+            if len(value) > 0:
+                return str(value).split('\0')
+            else:
+                return None
         else:
             return value
 
