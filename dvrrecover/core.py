@@ -40,3 +40,24 @@ class DvrRecover(object):
     def finalize(self):
         """Deinitialization"""
         self.config.db.close()
+
+
+    def create(self):
+        """Analyze input files and insert chunk list into database"""
+        pass
+
+
+    def sort(self):
+        """Sort chunks and try to concatenate parts of the same recording"""
+        pass
+
+
+    def reset(self):
+        """Reset concat attribute of every chunk"""
+        self.config.db.chunk_reset_concat()
+
+
+    def clear(self):
+        """Delete all chunks and reset state table"""
+        self.config.db.chunk_reset()
+        self.config.db.state_reset()
