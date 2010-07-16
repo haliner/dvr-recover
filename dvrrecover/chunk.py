@@ -33,6 +33,10 @@ class UnknownChunkKeyError(DvrRecoverError):
     pass
 
 
+class ChunkNotAssociatedError(DvrRecoverError):
+    """Chunk not associated with database row"""
+    pass
+
 
 class Chunk(object):
     """Object to save information about one chunk"""
