@@ -73,6 +73,7 @@ class ConfigManager(object):
 
 
     def is_valid_key(self, key):
+        """Return true if key is valid"""
         return key in (input_filenames,
                        blocksize,
                        export_dir,
