@@ -74,65 +74,10 @@ class DatabaseManager(object):
         return self.conn.execute("SELECT COUNT(*) FROM chunk").fetchone()[0]
 
 
-    def chunk_load(self, chunk_id):
-        """Return chunk object by chunk_id"""
-        result = self.conn.execute(
-            "SELECT * FROM chunk "
-            "WHERE id = ?",
-            (chunk_id,)).fetchone()
-        if result is None:
-            return None
-        chunk = Chunk(False)
-        (chunk.id,
-         chunk.block_start,
-         chunk.block_size,
-         chunk.clock_start,
-         chunk.clock_end,
-         chunk.concat) = result
-        return chunk
-
-
-    def chunk_save(self, chunk):
-        """Insert or update info in chunk table"""
-        if chunk.new:
-            cur = self.conn.execute(
-                "INSERT INTO chunk "
-                "VALUES (?, ?, ?, ?, ?, ?)",
-                (chunk.id,
-                 chunk.block_start,
-                 chunk.block_size,
-                 chunk.clock_start,
-                 chunk.clock_end,
-                 chunk.concat))
-
-            chunk.id = cur.lastrowid
-            chunk.new = False
-        else:
-            self.conn.execute(
-                "UPDATE chunk "
-                "SET block_start = ?,"
-                    "block_size = ?,"
-                    "clock_start = ?,"
-                    "clock_end = ?,"
-                    "concat = ? "
-                "WHERE id = ?",
-                (chunk.block_start,
-                 chunk.block_size,
-                 chunk.clock_start,
-                 chunk.clock_end,
-                 chunk.concat,
-                 chunk.id))
-
-
     def chunk_delete_id(self, chunk_id):
         """Delete row from chunk table by id"""
         self.conn.execute("DELETE FROM chunk WHERE id = ?",
                           (chunk_id,))
-
-
-    def chunk_delete(self, chunk):
-        """Delete row from chunk table by chunk object"""
-        self.chunk_delete_id(chunk.id)
 
 
     def chunk_reset(self):
@@ -153,12 +98,6 @@ class DatabaseManager(object):
             "SELECT id FROM chunk "
             "ORDER BY clock_start"):
             yield result[0]
-
-
-    def chunk_query(self):
-        """Return iterator for all chunk objects"""
-        for chunk_id in self.chunk_query_ids():
-            yield self.chunk_load(chunk_id)
 
 
     def chunk_query_concat(self, chunk):
