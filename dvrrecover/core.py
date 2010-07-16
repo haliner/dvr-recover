@@ -34,7 +34,6 @@ class DvrRecover(object):
     def initialize(self):
         """Initialization -- must be undone with finalize()"""
         self.config.db.open('dvr-recover.sqlite')
-        self.config.load()
 
 
     def finalize(self):

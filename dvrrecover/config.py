@@ -16,6 +16,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+
+from dvrrecover.exception import DvrRecoverError
+
+
 input_filenames = 'input_filenames'
 blocksize       = 'blocksize'
 export_dir      = 'export_dir'
@@ -24,12 +28,18 @@ max_create_gap  = 'max_create_gap'
 max_sort_gap    = 'max_sort_gap'
 
 
+class UnknownConfigError(DvrRecoverError):
+    """Invalid configuration item specified"""
+    pass
+
+
+
 class ConfigManager(object):
     """Manage program configuration"""
-    __slots__ = ('db', 'configs')
+    __slots__ = ('db')
 
 
-    defaults = {input_filenames: [],
+    defaults = {input_filenames: None,
                 blocksize: 2048,
                 export_dir: None,
                 min_chunk_size: 2560,
@@ -40,56 +50,55 @@ class ConfigManager(object):
     def __init__(self, db):
         """Initialize ConfigManager"""
         self.db = db
-        self.configs = {input_filenames: None,
-                        blocksize: None,
-                        export_dir: None,
-                        min_chunk_size: None,
-                        max_create_gap: None,
-                        max_sort_gap: None}
 
 
-    def encode(self, key):
+    def encode(self, key, value):
         """Prepare value for storage in database"""
-        value = self.configs[key]
         if value is None:
-            return none
-        elif key == input_filenames:
-            return buffer('\0'.join(value))
-        else:
             return value
-
-
-    def decode(self, key, value):
-        """Convert value from database to a Python equivalent"""
-        if value is None:
-            return None
         elif key == input_filenames:
             if len(value) > 0:
-                return str(value).split('\0')
+                return buffer('\0'.join(value))
             else:
                 return None
         else:
             return value
 
 
-    def load(self):
-        """Load settings from database"""
-        for key in self.configs.iterkeys():
-            self.configs[key] = self.decode(key,
-                                            self.db.setting_query(key))
+    def decode(self, key, value):
+        """Convert value from database to a Python equivalent"""
+        if key == input_filenames:
+            if value is None:
+                return []
+            else:
+                return str(value).split('\0')
+        else:
+            return value
+
+
+    def is_valid_key(self, key):
+        return key in (input_filenames,
+                       blocksize,
+                       export_dir,
+                       min_chunk_size,
+                       max_create_gap,
+                       max_sort_gap)
 
 
     def get(self, key):
         """Return value of config specified by key"""
-        value = self.configs[key]
+        if not self.is_valid_key(key):
+            raise UnknownConfigError("No valid configuration key: %s" %
+                                        key)
+        value = self.db.setting_query(key)
         if value is None:
             value = self.defaults[key]
-        if type(value) is list:
-            value = [i for i in value]
-        return value
+        return self.decode(key, value)
 
 
     def set(self, key, value):
         """Change setting and update database"""
-        self.configs[key] = value
-        self.db.setting_insert(key, self.encode(key))
+        if not self.is_valid_key(key):
+            raise UnknownConfigError("No valid configuration key: %s" %
+                                        key)
+        self.db.setting_insert(key, self.encode(key, value))
