@@ -17,6 +17,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+from dvrrecover import instances
 from dvrrecover.config import ConfigManager
 from dvrrecover.database import DatabaseManager
 
@@ -27,18 +28,19 @@ class DvrRecover(object):
 
     def __init__(self):
         """Initialize DvrRecover"""
-        db = DatabaseManager()
-        self.config = ConfigManager(db)
+        instances.core = self
+        instances.db = DatabaseManager()
+        instances.config = ConfigManager()
 
 
     def initialize(self):
         """Initialization -- must be undone with finalize()"""
-        self.config.db.open('dvr-recover.sqlite')
+        instances.db.open('dvr-recover.sqlite')
 
 
     def finalize(self):
         """Deinitialization"""
-        self.config.db.close()
+        instances.db.close()
 
 
     def create(self):
@@ -53,10 +55,10 @@ class DvrRecover(object):
 
     def reset(self):
         """Reset concat attribute of every chunk"""
-        self.config.db.chunk_reset_concat()
+        instances.db.chunk_reset_concat()
 
 
     def clear(self):
         """Delete all chunks and reset state table"""
-        self.config.db.chunk_reset()
-        self.config.db.state_reset()
+        instances.db.chunk_reset()
+        instances.db.state_reset()

@@ -17,6 +17,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+from dvrrecover import instances
 from dvrrecover.exception import DvrRecoverError
 
 
@@ -36,7 +37,7 @@ class UnknownConfigError(DvrRecoverError):
 
 class ConfigManager(object):
     """Manage program configuration"""
-    __slots__ = ('db')
+    __slots__ = ()
 
 
     defaults = {input_filenames: None,
@@ -45,11 +46,6 @@ class ConfigManager(object):
                 min_chunk_size: 2560,
                 max_create_gap: 90000,
                 max_sort_gap: 90000}
-
-
-    def __init__(self, db):
-        """Initialize ConfigManager"""
-        self.db = db
 
 
     def encode(self, key, value):
@@ -90,7 +86,7 @@ class ConfigManager(object):
         if not self.is_valid_key(key):
             raise UnknownConfigError("No valid configuration key: %s" %
                                         key)
-        value = self.db.setting_query(key)
+        value = instances.db.setting_query(key)
         if value is None:
             value = self.defaults[key]
         return self.decode(key, value)
@@ -101,4 +97,9 @@ class ConfigManager(object):
         if not self.is_valid_key(key):
             raise UnknownConfigError("No valid configuration key: %s" %
                                         key)
-        self.db.setting_insert(key, self.encode(key, value))
+        instances.db.setting_insert(key, self.encode(key, value))
+
+
+    def reset(self):
+        """Reset everything"""
+        instances.db.setting_reset()

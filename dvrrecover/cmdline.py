@@ -19,6 +19,7 @@
 
 import sys
 
+from dvrrecover import instances
 from dvrrecover.core import DvrRecover
 from dvrrecover import config
 
@@ -92,20 +93,20 @@ class CmdInterface(object):
                        config.min_chunk_size,
                        config.max_create_gap,
                        config.max_sort_gap):
-            self.core.config.set(args[0], int(args[1]))
+            instances.config.set(args[0], int(args[1]))
         elif args[0] == config.export_dir:
-            self.core.config.set(args[0], args[1])
+            instances.config.set(args[0], args[1])
         elif args[0] in 'input clear':
-            self.core.config.set(config.input_filenames, [])
+            instances.config.set(config.input_filenames, [])
         elif args[0] in ('input add', 'input del'):
-            filenames = self.core.config.get(config.input_filenames)
+            filenames = instances.config.get(config.input_filenames)
             if args[0] == 'input add':
                 filenames.append(args[1])
             else:
                 filenames.remove(args[1])
-            self.core.config.set(config.input_filenames, filenames)
+            instances.config.set(config.input_filenames, filenames)
         elif args[0] == 'show':
-            filenames = self.core.config.get(config.input_filenames)
+            filenames = instances.config.get(config.input_filenames)
             for filename in filenames:
                 print "input_filename:", filename
             if len(filenames) == 0:
@@ -115,9 +116,9 @@ class CmdInterface(object):
                             config.min_chunk_size,
                             config.max_create_gap,
                             config.max_sort_gap):
-                print settings + ":", self.core.config.get(settings)
+                print settings + ":", instances.config.get(settings)
         elif args[0] == 'reset':
-            self.core.config.db.setting_reset()
+            instances.config.reset()
 
 
     def usage(self):
