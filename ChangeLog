@@ -1,3 +1,10 @@
+2010-07-18  Stefan Haller  <haliner@googlemail.com>
+
+  Version 0.6.1:
+  * dvr-recover.py: Fixed misplaced parenthesis introduced in release 0.6.
+    Thanks to Martin Gašparík for pointing out this issue!
+
+
 2010-07-11  Stefan Haller  <haliner@googlemail.com>
 
   Version 0.6:
