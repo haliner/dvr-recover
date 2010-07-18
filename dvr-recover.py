@@ -777,10 +777,10 @@ class ChunkFactory(object):
             (ord(buf[3]) != 0xBA)):
             return None
 
-        marker_bit_1 = ord(buf[4] >> 6) & 3
-        marker_bit_2 = ord(buf[4] >> 2) & 1
-        marker_bit_3 = ord(buf[6] >> 2) & 1
-        marker_bit_4 = ord(buf[8] >> 2) & 1
+        marker_bit_1 = (ord(buf[4]) >> 6) & 3
+        marker_bit_2 = (ord(buf[4]) >> 2) & 1
+        marker_bit_3 = (ord(buf[6]) >> 2) & 1
+        marker_bit_4 = (ord(buf[8]) >> 2) & 1
 
         if ((marker_bit_1 != 1) or
             (marker_bit_2 != 1) or
@@ -790,39 +790,39 @@ class ChunkFactory(object):
 
         clock_bits = [None] * 33
 
-        clock_bits[32] = ord(buf[4] >> 5) & 1;
-        clock_bits[31] = ord(buf[4] >> 4) & 1;
-        clock_bits[30] = ord(buf[4] >> 3) & 1;
-        clock_bits[29] = ord(buf[4] >> 1) & 1;
-        clock_bits[28] = ord(buf[4] >> 0) & 1;
-        clock_bits[27] = ord(buf[5] >> 7) & 1;
-        clock_bits[26] = ord(buf[5] >> 6) & 1;
-        clock_bits[25] = ord(buf[5] >> 5) & 1;
-        clock_bits[24] = ord(buf[5] >> 4) & 1;
-        clock_bits[23] = ord(buf[5] >> 3) & 1;
-        clock_bits[22] = ord(buf[5] >> 2) & 1;
-        clock_bits[21] = ord(buf[5] >> 1) & 1;
-        clock_bits[20] = ord(buf[5] >> 0) & 1;
-        clock_bits[19] = ord(buf[6] >> 7) & 1;
-        clock_bits[18] = ord(buf[6] >> 6) & 1;
-        clock_bits[17] = ord(buf[6] >> 5) & 1;
-        clock_bits[16] = ord(buf[6] >> 4) & 1;
-        clock_bits[15] = ord(buf[6] >> 3) & 1;
-        clock_bits[14] = ord(buf[6] >> 1) & 1;
-        clock_bits[13] = ord(buf[6] >> 0) & 1;
-        clock_bits[12] = ord(buf[7] >> 7) & 1;
-        clock_bits[11] = ord(buf[7] >> 6) & 1;
-        clock_bits[10] = ord(buf[7] >> 5) & 1;
-        clock_bits[ 9] = ord(buf[7] >> 4) & 1;
-        clock_bits[ 8] = ord(buf[7] >> 3) & 1;
-        clock_bits[ 7] = ord(buf[7] >> 2) & 1;
-        clock_bits[ 6] = ord(buf[7] >> 1) & 1;
-        clock_bits[ 5] = ord(buf[7] >> 0) & 1;
-        clock_bits[ 4] = ord(buf[8] >> 7) & 1;
-        clock_bits[ 3] = ord(buf[8] >> 6) & 1;
-        clock_bits[ 2] = ord(buf[8] >> 5) & 1;
-        clock_bits[ 1] = ord(buf[8] >> 4) & 1;
-        clock_bits[ 0] = ord(buf[8] >> 3) & 1;
+        clock_bits[32] = (ord(buf[4]) >> 5) & 1;
+        clock_bits[31] = (ord(buf[4]) >> 4) & 1;
+        clock_bits[30] = (ord(buf[4]) >> 3) & 1;
+        clock_bits[29] = (ord(buf[4]) >> 1) & 1;
+        clock_bits[28] = (ord(buf[4]) >> 0) & 1;
+        clock_bits[27] = (ord(buf[5]) >> 7) & 1;
+        clock_bits[26] = (ord(buf[5]) >> 6) & 1;
+        clock_bits[25] = (ord(buf[5]) >> 5) & 1;
+        clock_bits[24] = (ord(buf[5]) >> 4) & 1;
+        clock_bits[23] = (ord(buf[5]) >> 3) & 1;
+        clock_bits[22] = (ord(buf[5]) >> 2) & 1;
+        clock_bits[21] = (ord(buf[5]) >> 1) & 1;
+        clock_bits[20] = (ord(buf[5]) >> 0) & 1;
+        clock_bits[19] = (ord(buf[6]) >> 7) & 1;
+        clock_bits[18] = (ord(buf[6]) >> 6) & 1;
+        clock_bits[17] = (ord(buf[6]) >> 5) & 1;
+        clock_bits[16] = (ord(buf[6]) >> 4) & 1;
+        clock_bits[15] = (ord(buf[6]) >> 3) & 1;
+        clock_bits[14] = (ord(buf[6]) >> 1) & 1;
+        clock_bits[13] = (ord(buf[6]) >> 0) & 1;
+        clock_bits[12] = (ord(buf[7]) >> 7) & 1;
+        clock_bits[11] = (ord(buf[7]) >> 6) & 1;
+        clock_bits[10] = (ord(buf[7]) >> 5) & 1;
+        clock_bits[ 9] = (ord(buf[7]) >> 4) & 1;
+        clock_bits[ 8] = (ord(buf[7]) >> 3) & 1;
+        clock_bits[ 7] = (ord(buf[7]) >> 2) & 1;
+        clock_bits[ 6] = (ord(buf[7]) >> 1) & 1;
+        clock_bits[ 5] = (ord(buf[7]) >> 0) & 1;
+        clock_bits[ 4] = (ord(buf[8]) >> 7) & 1;
+        clock_bits[ 3] = (ord(buf[8]) >> 6) & 1;
+        clock_bits[ 2] = (ord(buf[8]) >> 5) & 1;
+        clock_bits[ 1] = (ord(buf[8]) >> 4) & 1;
+        clock_bits[ 0] = (ord(buf[8]) >> 3) & 1;
 
         clock = 0
         for i in range(0,33):
