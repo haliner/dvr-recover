@@ -145,6 +145,14 @@ class DatabaseManager(object):
         return result[0]
 
 
+    def chunk_insert(self):
+        """Insert row into chunk table and return id"""
+        cur = self.conn.execute(
+            "INSERT INTO chunk (id) "
+            "VALUES (null)")
+        return cur.lastrowid
+
+
     def chunk_update(self, id, column, value):
         """Update column in chunk table"""
         self.chunk_check_column(column)
