@@ -87,20 +87,20 @@ class ConfigManager(object):
         if not self.is_valid_key(key):
             raise UnknownConfigError("No valid configuration key: %s" %
                                         key)
-        value = instances.db.setting_query(key)
+        value = instances.db.config_query(key)
         if value is None:
             value = self.defaults[key]
         return self.decode(key, value)
 
 
     def set(self, key, value):
-        """Change setting and update database"""
+        """Change config and update database"""
         if not self.is_valid_key(key):
             raise UnknownConfigError("No valid configuration key: %s" %
                                         key)
-        instances.db.setting_insert(key, self.encode(key, value))
+        instances.db.config_insert(key, self.encode(key, value))
 
 
     def reset(self):
         """Reset everything"""
-        instances.db.setting_reset()
+        instances.db.config_reset()

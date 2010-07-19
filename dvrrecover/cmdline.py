@@ -111,12 +111,12 @@ class CmdInterface(object):
                 print "input_filename:", filename
             if len(filenames) == 0:
                 print "No input files specified!"
-            for settings in (config.blocksize,
-                            config.export_dir,
-                            config.min_chunk_size,
-                            config.max_create_gap,
-                            config.max_sort_gap):
-                print settings + ":", instances.config.get(settings)
+            for key in (config.blocksize,
+                        config.export_dir,
+                        config.min_chunk_size,
+                        config.max_create_gap,
+                        config.max_sort_gap):
+                print key + ":", instances.config.get(key)
         elif args[0] == 'reset':
             instances.config.reset()
 

@@ -63,7 +63,7 @@ class DatabaseManager(object):
                 "value"
             ")")
         self.conn.execute(
-            "CREATE TABLE IF NOT EXISTS setting("
+            "CREATE TABLE IF NOT EXISTS config("
                 "key TEXT PRIMARY KEY ON CONFLICT REPLACE,"
                 "value"
             ")")
@@ -159,15 +159,15 @@ class DatabaseManager(object):
             (key, value))
 
 
-    def setting_reset(self):
-        """Delete all entries of setting table"""
-        self.conn.execute("DELETE FROM setting")
+    def config_reset(self):
+        """Delete all entries of config table"""
+        self.conn.execute("DELETE FROM config")
 
 
-    def setting_query(self, key):
-        """Return value of setting by key"""
+    def config_query(self, key):
+        """Return value of config by key"""
         result = self.conn.execute(
-            "SELECT value FROM setting "
+            "SELECT value FROM config "
             "WHERE key = ?",
             (key,)).fetchone()
         if result is None:
@@ -175,17 +175,17 @@ class DatabaseManager(object):
         return result[0]
 
 
-    def setting_delete(self, key):
-        """Delete entry in setting table by key"""
+    def config_delete(self, key):
+        """Delete entry in config table by key"""
         self.conn.execute(
-            "DELETE from setting "
+            "DELETE from config "
             "WHERE key = ?",
             (key,))
 
 
-    def setting_insert(self, key, value):
-        """Insert key/value pair into setting table"""
+    def config_insert(self, key, value):
+        """Insert key/value pair into config table"""
         self.conn.execute(
-            "INSERT INTO setting "
+            "INSERT INTO config "
             "VALUES (?, ?)",
             (key, value))
