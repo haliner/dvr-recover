@@ -18,6 +18,13 @@
 
 import sqlite3
 
+from dvrrecover.exception import DvrRecoverError
+
+
+class SqlManagerError(DvrRecoverError):
+    pass
+
+
 
 class DatabaseManager(object):
     """Interface to access data via SQL queries"""
