@@ -21,7 +21,7 @@ from dvrrecover import instances
 from dvrrecover.exception import DvrRecoverError
 
 
-block_start = 'black_start'
+block_start = 'block_start'
 block_size  = 'block_size'
 clock_start = 'clock_start'
 clock_end   = 'clock_end'
