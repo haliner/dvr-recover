@@ -29,8 +29,11 @@ time_elapsed  = 'time_elapsed'
 
 
 class UnknownStateError(DvrRecoverError):
-    """Invalid state item specified"""
-    pass
+    """Invalid state key specified"""
+
+    def __init__(self, key):
+        DvrRecoverError.__init__(self,
+            "Invalid state key specified: %s" % key)
 
 
 
@@ -39,26 +42,24 @@ class StateManager(object):
     __slots__ = ()
 
 
-    def is_valid_key(self, key):
+    def is_valid_key(self, key, throw=True):
         """Return true if key is valid"""
-        return key in (current_block,
-                       block_start,
-                       clock_start,
-                       old_clock,
-                       time_elapsed)
+        value = key in (current_block,
+                        block_start,
+                        clock_start,
+                        old_clock,
+                        time_elapsed)
+        if not value and throw:
+            raise UnknownStateError(key)
 
 
     def get(self, key):
         """Return value of state specified by key"""
-        if not self.is_valid_key(key):
-            raise UnknownStateError("No valid state key: %s" %
-                                        key)
-        return self.db.state_query(key)
+        self.is_valid_key(key, True)
+        return instances.db.state_query(key)
 
 
     def set(self, key, value):
         """Change state and update database"""
-        if not self.is_valid_key(key):
-            raise UnknownStateError("No valid state key: %s" %
-                                        key)
-        self.db.state_insert(key, value)
+        self.is_valid_key(key, True)
+        instances.db.state_insert(key, value)
