@@ -63,3 +63,8 @@ class StateManager(object):
         """Change state and update database"""
         self.is_valid_key(key, True)
         instances.db.state_insert(key, value)
+
+
+    def reset(self):
+        """Reset everything"""
+        instances.db.state_reset()
