@@ -30,8 +30,11 @@ max_sort_gap    = 'max_sort_gap'
 
 
 class UnknownConfigError(DvrRecoverError):
-    """Invalid configuration item specified"""
-    pass
+    """Invalid configuration key specified"""
+
+    def __init__(self, key):
+        DvrRecoverError.__init__(self,
+            "Invalid configuration key specified: %s" % key)
 
 
 
@@ -72,21 +75,21 @@ class ConfigManager(object):
             return value
 
 
-    def is_valid_key(self, key):
+    def is_valid_key(self, key, throw=False):
         """Return true if key is valid"""
-        return key in (input_filenames,
-                       blocksize,
-                       export_dir,
-                       min_chunk_size,
-                       max_create_gap,
-                       max_sort_gap)
+        value = key in (input_filenames,
+                        blocksize,
+                        export_dir,
+                        min_chunk_size,
+                        max_create_gap,
+                        max_sort_gap)
+        if not value and throw:
+            raise UnknownConfigError(key)
 
 
     def get(self, key):
         """Return value of config specified by key"""
-        if not self.is_valid_key(key):
-            raise UnknownConfigError("No valid configuration key: %s" %
-                                        key)
+        self.is_valid_key(key, True)
         value = instances.db.config_query(key)
         if value is None:
             value = self.defaults[key]
@@ -95,9 +98,7 @@ class ConfigManager(object):
 
     def set(self, key, value):
         """Change config and update database"""
-        if not self.is_valid_key(key):
-            raise UnknownConfigError("No valid configuration key: %s" %
-                                        key)
+        self.is_valid_key(key, True)
         instances.db.config_insert(key, self.encode(key, value))
 
 
