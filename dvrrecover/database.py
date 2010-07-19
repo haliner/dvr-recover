@@ -76,6 +76,18 @@ class DatabaseManager(object):
             ")")
 
 
+    def chunk_check_column(self, column):
+        """Check if column is a valid column in chunk table"""
+        if column not in ('id',
+                          'block_start',
+                          'block_size',
+                          'clock_start',
+                          'clock_end',
+                          'concat'):
+            raise SqlManagerError("No valid column in chunk table: %s" %
+                                  column)
+
+
     def chunk_count(self):
         """Return count of rows in chunk table"""
         return self.conn.execute("SELECT COUNT(*) FROM chunk").fetchone()[0]
@@ -107,19 +119,40 @@ class DatabaseManager(object):
             yield result[0]
 
 
+    def chunk_query(self, id, column):
+        """Return value for column and chunk id"""
+        self.chunk_check_column(column)
+        result = self.conn.execute(
+            "SELECT %s FROM chunk "
+            "WHERE id=?" % column,
+            (id,)).fetchone()
+        if result is None:
+            return None
+        return result[0]
+
+
     def chunk_query_concat(self, chunk):
-        """Return chunk which should be concatenated to the current one"""
-        cur = self.conn.execute(
+        """Return chunk id which should be concatenated to the current one"""
+        result = self.conn.execute(
             "SELECT id FROM chunk "
             "WHERE concat = ?",
-            (chunk.id,))
-        result = cur.fetchone()
+            (chunk.id,)).fetchone()
         if result is None:
             return None
         if cur.fetchone() is not None:
             raise SqlManagerError("Multiple chunks are referencing the same "
                                   "chunk for concatenating!")
-        return self.chunk_load(result[0])
+        return result[0]
+
+
+    def chunk_update(self, id, column, value):
+        """Update column in chunk table"""
+        self.chunk_check_column(column)
+        self.conn.execute(
+            "UPDATE chunk "
+            "SET %s = ? "
+            "WHERE id = ?" % column,
+            (value, id))
 
 
     def chunk_fix_multiple_concats(self):
