@@ -33,7 +33,7 @@ class CmdInterface(object):
 
 
     def create(self):
-        pass
+        self.core.create()
 
 
     def sort(self):

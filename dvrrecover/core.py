@@ -18,8 +18,11 @@
 
 
 from dvrrecover import instances
+from dvrrecover import config
+from dvrrecover.chunkfactory import ChunkFactory
 from dvrrecover.config import ConfigManager
 from dvrrecover.database import DatabaseManager
+from dvrrecover.filereader import FileReader
 
 
 class DvrRecover(object):
@@ -45,7 +48,10 @@ class DvrRecover(object):
 
     def create(self):
         """Analyze input files and insert chunk list into database"""
-        pass
+        reader = FileReader(instances.config.get(config.input_filenames))
+        cf = ChunkFactory(reader)
+        cf.run()
+        reader.close()
 
 
     def sort(self):
