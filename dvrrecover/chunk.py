@@ -96,3 +96,4 @@ class Chunk(object):
         self.id = instances.db.chunk_insert()
         for k, v in self.cache.iteritems():
             self.set(k, v)
+        del self.cache
