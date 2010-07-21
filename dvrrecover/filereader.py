@@ -17,6 +17,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+import os
+
+
 class FileReader(object):
     """Handle multiple input streams as one big file"""
     __slots__ = ('parts', 'current_file', 'file')

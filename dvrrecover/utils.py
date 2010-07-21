@@ -17,6 +17,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+import time
+
+
 class Timer(object):
     """Time measurement"""
     __slots__ = ('timecode')
