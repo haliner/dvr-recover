@@ -24,7 +24,7 @@ from dvrrecover.exception import DvrRecoverError
 input_filenames = 'input_filenames'
 blocksize       = 'blocksize'
 export_dir      = 'export_dir'
-min_chunk_size  = 'min_chunk_size'
+min_export_size  = 'min_export_size'
 max_create_gap  = 'max_create_gap'
 max_sort_gap    = 'max_sort_gap'
 
@@ -46,7 +46,7 @@ class ConfigManager(object):
     defaults = {input_filenames: None,
                 blocksize: 2048,
                 export_dir: None,
-                min_chunk_size: 2560,
+                min_export_size: 2560,
                 max_create_gap: 90000,
                 max_sort_gap: 90000}
 
@@ -80,7 +80,7 @@ class ConfigManager(object):
         value = key in (input_filenames,
                         blocksize,
                         export_dir,
-                        min_chunk_size,
+                        min_export_size,
                         max_create_gap,
                         max_sort_gap)
         if not value and throw:

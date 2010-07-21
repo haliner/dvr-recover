@@ -74,7 +74,7 @@ class CmdInterface(object):
                 'input del': 1,
                 'input clear': 0,
                 config.blocksize: 1,
-                config.min_chunk_size: 1,
+                config.min_export_size: 1,
                 config.max_create_gap: 1,
                 config.max_sort_gap: 1,
                 config.export_dir: 1
@@ -90,7 +90,7 @@ class CmdInterface(object):
             return
 
         if args[0] in (config.blocksize,
-                       config.min_chunk_size,
+                       config.min_export_size,
                        config.max_create_gap,
                        config.max_sort_gap):
             instances.config.set(args[0], int(args[1]))
@@ -113,7 +113,7 @@ class CmdInterface(object):
                 print "No input files specified!"
             for key in (config.blocksize,
                         config.export_dir,
-                        config.min_chunk_size,
+                        config.min_export_size,
                         config.max_create_gap,
                         config.max_sort_gap):
                 print key + ":", instances.config.get(key)
