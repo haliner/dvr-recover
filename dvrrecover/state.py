@@ -21,11 +21,10 @@ from dvrrecover import instances
 from dvrrecover.exception import DvrRecoverError
 
 
-current_block = 'current_block'
+block_cur     = 'block_cur'
 block_start   = 'block_start'
 clock_start   = 'clock_start'
-old_clock     = 'old_clock'
-time_elapsed  = 'time_elapsed'
+clock_old     = 'clock_old'
 
 
 class UnknownStateError(DvrRecoverError):
@@ -44,11 +43,10 @@ class StateManager(object):
 
     def is_valid_key(self, key, throw=True):
         """Return true if key is valid"""
-        value = key in (current_block,
+        value = key in (block_cur,
                         block_start,
                         clock_start,
-                        old_clock,
-                        time_elapsed)
+                        clock_old)
         if not value and throw:
             raise UnknownStateError(key)
 
