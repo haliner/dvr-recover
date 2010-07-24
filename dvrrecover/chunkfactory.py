@@ -138,10 +138,10 @@ class ChunkFactory(object):
         clock_cur = 0
         i = 0
         for tup in ( tuple((0, i) for i in range(3, 8)) +
-                    tuple((1, i) for i in range(0, 8)) +
-                    tuple((2, i) for i in range(0, 2) + range(3, 8)) +
-                    tuple((3, i) for i in range(0, 8)) +
-                    tuple((4, i) for i in range(0, 2) + range(3, 5)) ):
+                     tuple((1, i) for i in range(0, 8)) +
+                     tuple((2, i) for i in range(0, 2) + range(3, 8)) +
+                     tuple((3, i) for i in range(0, 8)) +
+                     tuple((4, i) for i in range(0, 2) + range(3, 5)) ):
             clock_cur += ((ord(buf[8 - tup[0]]) >> tup[1]) & 1) * 2**i
             i += 1
         return clock_cur
