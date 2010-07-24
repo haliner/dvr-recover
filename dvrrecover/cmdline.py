@@ -30,10 +30,12 @@ class CmdInterface(object):
     __slots__ = ('argv', 'core')
 
     def __init__(self):
+        """Initialize CmdInterface"""
         self.core = core.DvrRecover()
 
 
     def create(self):
+        """Analyze input files"""
         self.core.create()
 
 
