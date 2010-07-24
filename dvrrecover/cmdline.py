@@ -36,7 +36,7 @@ class CmdInterface(object):
 
     def create(self):
         """Analyze input files"""
-        self.core.create()
+        self.core.analyze_input()
 
 
     def sort(self):

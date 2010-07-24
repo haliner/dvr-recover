@@ -46,7 +46,7 @@ class DvrRecover(object):
         instances.db.close()
 
 
-    def create(self):
+    def analyze_input(self):
         """Analyze input files and insert chunk list into database"""
         reader = FileReader(instances.config.get(config.input_filenames))
         cf = ChunkFactory(reader)
@@ -54,17 +54,17 @@ class DvrRecover(object):
         reader.close()
 
 
-    def sort(self):
+    def sort_chunks(self):
         """Sort chunks and try to concatenate parts of the same recording"""
         pass
 
 
-    def reset(self):
+    def reset_sorting(self):
         """Reset concat attribute of every chunk"""
         instances.db.chunk_reset_concat()
 
 
-    def clear(self):
+    def clear_chunk_info(self):
         """Delete all chunks and reset state table"""
         instances.db.chunk_reset()
         instances.db.state_reset()
