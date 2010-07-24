@@ -19,6 +19,7 @@
 
 import sys
 
+from dvrrecover import chunk
 from dvrrecover import instances
 from dvrrecover.core import DvrRecover
 from dvrrecover import config
@@ -49,7 +50,51 @@ class CmdInterface(object):
 
 
     def show(self):
-        pass
+        """Dump chunk list file in a human readable way"""
+        header_lines = ''.join(['-'] * 5 + (['+'] + ['-'] * 14) * 5)
+        header_captions = ''.join([' '] * 5 + ['| %12s '] * 5)[:-1] % \
+                                ('Block Start',
+                                 'Block Size',
+                                 'Clock Start',
+                                 'Clock End',
+                                 'Concatenate')
+        print header_lines
+        print header_captions
+        print header_lines
+
+        def print_chunk(ch):
+            fmt_str_list = []
+            fmt_str_arg_list = []
+            if ch.get(chunk.concat) is not None:
+                fmt_str_list.append('%4s ')
+                fmt_str_arg_list.append('#')
+            else:
+                fmt_str_list.append('%4i ')
+                fmt_str_arg_list.append(index)
+            fmt_str_list.extend(['| %12i '] * 4)
+            fmt_str_list.extend(['| %10s'])
+            fmt_str = ''.join(fmt_str_list)
+            fmt_str_arg_list.extend([ch.get(chunk.block_start),
+                                     ch.get(chunk.block_size),
+                                     ch.get(chunk.clock_start),
+                                     ch.get(chunk.clock_end),
+                                     ch.get(chunk.concat) is not None])
+            print fmt_str % tuple(fmt_str_arg_list)
+
+        def process_concats(ch):
+            ch2 = ch.get_concat()
+            if ch2 is not None:
+                print_chunk(ch2)
+                process_concats(ch2)
+
+        index = 1
+        for chunk_id in instances.db.chunk_query_ids():
+            ch = chunk.Chunk(chunk_id)
+            if ch.get(chunk.concat) is not None:
+                continue
+            print_chunk(ch)
+            process_concats(ch)
+            index += 1
 
 
     def export(self):
