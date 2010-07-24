@@ -97,3 +97,12 @@ class Chunk(object):
         for k, v in self.cache.iteritems():
             self.set(k, v)
         del self.cache
+
+
+    def get_concat(self):
+        """Return chunk which should be concatenated to the current one"""
+        new_id = instances.db.chunk_query_concat(self.id)
+        if new_id is None:
+            return None
+        else:
+            return Chunk(new_id)

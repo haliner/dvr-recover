@@ -131,12 +131,12 @@ class DatabaseManager(object):
         return result[0]
 
 
-    def chunk_query_concat(self, chunk):
+    def chunk_query_concat(self, id):
         """Return chunk id which should be concatenated to the current one"""
         result = self.conn.execute(
             "SELECT id FROM chunk "
             "WHERE concat = ?",
-            (chunk.id,)).fetchone()
+            (id,)).fetchone()
         if result is None:
             return None
         if cur.fetchone() is not None:
