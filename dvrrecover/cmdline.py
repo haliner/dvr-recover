@@ -20,9 +20,9 @@
 import sys
 
 from dvrrecover import chunk
-from dvrrecover import instances
-from dvrrecover.core import DvrRecover
 from dvrrecover import config
+from dvrrecover import core
+from dvrrecover import instances
 
 
 class CmdInterface(object):
@@ -30,7 +30,7 @@ class CmdInterface(object):
     __slots__ = ('argv', 'core')
 
     def __init__(self):
-        self.core = DvrRecover()
+        self.core = core.DvrRecover()
 
 
     def create(self):
