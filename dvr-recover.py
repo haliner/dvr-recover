@@ -218,6 +218,7 @@ Tested devices:
 '''
 
 
+import os
 import os.path
 import sqlite3
 import sys
@@ -305,6 +306,13 @@ class FileReader(object):
                                       'is not supported currently.')
             part = {'filename': filename,
                     'size': os.stat(filename).st_size}
+            if part['size'] == 0:
+                # size is most likely not 0, but it might be a special file
+                # (device file). Try to determine size in another way.
+                f = open(part['filename'], 'rb')
+                f.seek(0, os.SEEK_END) # seek end of file
+                part['size'] = f.tell() # current file position = file size
+                f.close()
             self.parts.append(part)
         self.current_file = None
         self.file = None
