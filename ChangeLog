@@ -1,3 +1,11 @@
+2011-01-26  Stefan Haller  <haliner@googlemail.com>
+
+  Version 0.7:
+  * dvr-recover.py: Introduced fallback for determining file size.
+    This solves issues with special files like device files.
+    Thanks to Kevin Cardinal, who reported the bug and tested the developed fix.
+
+
 2010-07-18  Stefan Haller  <haliner@googlemail.com>
 
   Version 0.6.1:
