@@ -1,3 +1,13 @@
+2011-03-14  Stefan Haller  <haliner@googlemail.com>
+
+  Version 0.8:
+  * dvr-recover.py: Don't drop the last block of n-1 chunk and first block of n
+    chunk while splitting.
+    Patch submitted by Alan Kan. Thanks.
+  * dvr-recover.py, README: Added Panasonic DVM-E80H to list of working devices.
+  * README: Some minor changes.
+
+
 2011-01-26  Stefan Haller  <haliner@googlemail.com>
 
   Version 0.7:
