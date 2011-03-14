@@ -214,6 +214,7 @@ Tested devices:
   * Panasonic DMR-EX77
   * Panasonic DMR-EX85
   * Panasonic DMR-XW300
+  * Panasonic DVM-E80H
 
 '''
 
