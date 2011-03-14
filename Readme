@@ -13,10 +13,15 @@
  Description
 ~~~~~~~~~~~~~
 
- With this script you can easily recover the recordings from the hard drive
- disk of a digital video recorder. There are many devices on the market, not
- all models can be supported. See the list of tested devices to see if your
- device has been already tested.
+ dvr-recover is an incredible Python-powered project helping you to recover
+ recordings of digital video recorders. In other words: The script is able to
+ find video files on the surface of the device's hard disk drive.
+
+ Practically, the process is much more complex. Have a look at the following
+ sections if you want to gain more knowledge about the details.
+
+ There are many devices on the market, not all models can be supported. See the
+ list of tested devices to see if your device has been already tested.
 
 
 
