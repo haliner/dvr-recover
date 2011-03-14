@@ -748,7 +748,7 @@ class ChunkFactory(object):
         speed = float(self.current_block + 1) / float(delta)
         print
         print 'Finished.'
-        print 'Read %i of %i blocks.' % (self.current_block + 1,
+        print 'Read %i of %i blocks.' % (self.current_block ,
                                          self.input_blocks)
         print 'Found %i chunks.' % chunk_count
         print 'Took %.2f seconds.' % delta
@@ -843,7 +843,7 @@ class ChunkFactory(object):
     def split(self):
         '''End current chunk and start a new one'''
         if self.chunk is not None:
-            self.chunk.block_size = self.current_block - 1 - \
+            self.chunk.block_size = self.current_block - \
                                     self.chunk.block_start
             self.chunk.clock_end = self.old_clock
 
@@ -886,7 +886,13 @@ class ChunkFactory(object):
                     delta = self.clock - self.old_clock
                     if (delta < 0) or (delta > self.max_gap):
                         self.split()
+                        if self.chunk is None:
+                            self.chunk = Chunk()
+                            self.chunk.block_start = self.current_block
+                            self.chunk.clock_start = self.clock
+
                 self.old_clock = self.clock
+        self.current_block = self.current_block + 1
         self.split()
         self.finished()
 
