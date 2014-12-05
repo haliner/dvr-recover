@@ -1,0 +1,90 @@
+Sa 16. Okt 13:06:49 CEST 2010
+
+
+endianness:    little endian
+blocksize:     2048
+gapsize:       90000
+discardsize:   27000000
+input:         /home/stefan/Downloads/mpeghdd.img
+output:        dummy
+
+
+All recoverable fragments:
+
+block start:  0
+block size:   94464
+time start:   5c ac 11 29 00
+time end:     0d d7 cd 2a 00
+
+block start:  94464
+block size:   589824
+time start:   00 00 00 00 00
+time end:     df 28 ab 08 00
+
+block start:  684288
+block size:   171111
+time start:   7a aa ed 35 00
+time end:     13 92 17 39 00
+
+block start:  855399
+block size:   153
+time start:   8c a5 25 01 00
+time end:     1c 1c 26 01 00
+
+block start:  855552
+block size:   393216
+time start:   00 00 00 00 00
+time end:     01 13 55 07 00
+
+block start:  1248768
+block size:   12288
+time start:   44 70 f2 17 00
+time end:     33 7f 16 18 00
+
+block start:  1261056
+block size:   3469
+time start:   aa fc 09 19 00
+time end:     34 2b 1d 19 00
+
+block start:  1264525
+block size:   1677299
+time start:   b6 6f cb 00 00
+time end:     46 7d b2 21 00
+
+block start:  2941824
+block size:   393216
+time start:   00 00 00 00 00
+time end:     13 3e 52 07 00
+
+block start:  3335040
+block size:   892906
+time start:   93 13 55 07 00
+time end:     93 d7 18 18 00
+
+block start:  4227946
+block size:   278
+time start:   5f b6 95 0b 00
+time end:     16 a1 96 0b 00
+
+block start:  4228224
+block size:   786432
+time start:   71 29 ab 08 00
+time end:     75 e1 52 14 00
+
+block start:  5014656
+block size:   45312
+time start:   5a a4 ba 04 00
+time end:     c3 bb 44 05 00
+
+block start:  5059968
+block size:   24576
+time start:   67 d2 63 18 00
+time end:     35 db ae 18 00
+
+block start:  5084544
+block size:   158336
+time start:   53 49 52 07 00
+time end:     f8 6f 53 0a 00
+
+
+Sa 16. Okt 13:09:38 CEST 2010
