@@ -47,9 +47,11 @@ Working devices:
  *  Panasonic DMR-EH56
  *  Panasonic DMR-EH57
  *  Panasonic DMR-EX77
+ *  Panasonic DMR-EX80S
  *  Panasonic DMR-EX85
  *  Panasonic DMR-XW300
  *  Panasonic DVM-E80H
+ *  Pioneer DVR-433H
 
 
 System Requirements
