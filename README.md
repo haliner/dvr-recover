@@ -37,9 +37,9 @@ License
 Tested Devices
 --------------
 
-Currently only Panasonic DMR devices have been tested. If you successfully
-recovered the content of your drive (completely or partly), please drop me a
-mail!
+Currently only Panasonic DMR and Sony RDR devices have been tested. If you
+successfully recovered the content of your drive (completely or partly), please
+drop me a mail!
 
 Working devices:
 
@@ -50,6 +50,7 @@ Working devices:
  *  Panasonic DMR-EX85
  *  Panasonic DMR-XW300
  *  Panasonic DVM-E80H
+ *  Sony RDR-HXD870 (possibly other RDR-HXD-8x0 will work too)
 
 
 System Requirements
