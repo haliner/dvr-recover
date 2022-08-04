@@ -218,12 +218,12 @@ Tested devices:
 
 '''
 
-
 import os
 import os.path
 import sqlite3
 import sys
 import time
+
 
 
 class DvrRecoverError(Exception):
@@ -236,25 +236,29 @@ class DvrRecoverError(Exception):
     def __str__(self):
         return self.msg
 
+
 class SqlManagerError(DvrRecoverError):
     pass
+
 
 class CreateError(DvrRecoverError):
     '''Error while creating chunk list'''
     pass
 
+
 class ExportError(DvrRecoverError):
     '''Error while exporting chunks'''
     pass
+
 
 class UnexpectedResultError(DvrRecoverError):
     '''Unexpected result encountered'''
     pass
 
+
 class FileReaderError(DvrRecoverError):
     '''Exception class for FileReader class'''
     pass
-
 
 
 class Chunk(object):
@@ -267,11 +271,10 @@ class Chunk(object):
                  'concat',
                  'new')
 
-    def __init__(self, new = True):
+    def __init__(self, new=True):
         for i in self.__slots__:
             setattr(self, i, None)
         self.new = new
-
 
 
 class Timer(object):
@@ -281,17 +284,14 @@ class Timer(object):
     def __init__(self):
         self.reset()
 
-
     def reset(self):
         self.timecode = time.time()
 
-
-    def elapsed(self, reset = False):
+    def elapsed(self, reset=False):
         result = time.time() - self.timecode
         if reset:
             self.reset()
         return result
-
 
 
 class FileReader(object):
@@ -311,13 +311,12 @@ class FileReader(object):
                 # size is most likely not 0, but it might be a special file
                 # (device file). Try to determine size in another way.
                 f = open(part['filename'], 'rb')
-                f.seek(0, os.SEEK_END) # seek end of file
-                part['size'] = f.tell() # current file position = file size
+                f.seek(0, os.SEEK_END)  # seek end of file
+                part['size'] = f.tell()  # current file position = file size
                 f.close()
             self.parts.append(part)
         self.current_file = None
         self.file = None
-
 
     def get_size(self):
         '''Return the total size of all input streams'''
@@ -326,7 +325,6 @@ class FileReader(object):
             size += part['size']
         return size
 
-
     def get_index(self, offset):
         '''Return the index of the file where offset is located'''
         index = 0
@@ -334,12 +332,11 @@ class FileReader(object):
         for part in self.parts:
             end = start + part['size']
             if ((offset >= start) and
-                (offset < end)):
+                    (offset < end)):
                 return index
             start = end
             index += 1
         return None
-
 
     def get_offset(self, index):
         '''Return the starting offset of a specified file part'''
@@ -353,7 +350,6 @@ class FileReader(object):
             i += 1
         return offset
 
-
     def open(self, index):
         '''Open input stream with the specified index'''
         self.close()
@@ -363,14 +359,12 @@ class FileReader(object):
         else:
             raise FileReaderError('Index out of range!')
 
-
     def close(self):
         '''Close current input stream'''
         if self.file is not None:
             self.file.close()
         self.current_file = None
         self.file = None
-
 
     def seek(self, offset):
         '''Seek to offset (open correct file, seek, ...)'''
@@ -383,11 +377,9 @@ class FileReader(object):
                 self.open(index)
         self.file.seek(delta)
 
-
     def is_eof(self):
         '''Return true if eof of current file part is reached'''
         return (self.file.tell() == self.parts[self.current_file]['size'])
-
 
     def next_file(self):
         '''Open next input file'''
@@ -395,7 +387,6 @@ class FileReader(object):
             self.open(self.current_file + 1)
         else:
             self.close()
-
 
     def read(self, size):
         '''Read data from stream, automatically switch stream if necessary'''
@@ -413,7 +404,6 @@ class FileReader(object):
         return buf
 
 
-
 class SqlManager(object):
     '''Interface to access data via SQL queries'''
     __slots__ = ('conn',)
@@ -422,12 +412,10 @@ class SqlManager(object):
         '''Initialize SqlManager'''
         self.conn = None
 
-
     def open(self, filename):
         '''Open Sqlite3 database'''
         self.conn = sqlite3.connect(filename)
         self.init_db()
-
 
     def close(self, commit=True):
         '''Close database connection after optional commit'''
@@ -435,39 +423,35 @@ class SqlManager(object):
             self.commit()
         self.conn.close()
 
-
     def commit(self):
         '''Commit all changes'''
         self.conn.commit()
-
 
     def init_db(self):
         '''Create structure of database'''
         self.conn.execute(
             "CREATE TABLE IF NOT EXISTS chunk("
-                "id INTEGER PRIMARY KEY,"
-                "block_start INTEGER,"
-                "block_size INTEGER,"
-                "clock_start INTEGER,"
-                "clock_end INTEGER,"
-                "concat INTEGER"
+            "id INTEGER PRIMARY KEY,"
+            "block_start INTEGER,"
+            "block_size INTEGER,"
+            "clock_start INTEGER,"
+            "clock_end INTEGER,"
+            "concat INTEGER"
             ")")
         self.conn.execute(
             "CREATE TABLE IF NOT EXISTS state("
-                "key TEXT PRIMARY KEY ON CONFLICT REPLACE,"
-                "value"
+            "key TEXT PRIMARY KEY ON CONFLICT REPLACE,"
+            "value"
             ")")
         self.conn.execute(
             "CREATE TABLE IF NOT EXISTS setting("
-                "key TEXT PRIMARY KEY ON CONFLICT REPLACE,"
-                "value"
+            "key TEXT PRIMARY KEY ON CONFLICT REPLACE,"
+            "value"
             ")")
-
 
     def chunk_count(self):
         '''Return count of rows in chunk table'''
         return self.conn.execute("SELECT COUNT(*) FROM chunk").fetchone()[0]
-
 
     def chunk_load(self, chunk_id):
         '''Return chunk object by chunk_id'''
@@ -485,7 +469,6 @@ class SqlManager(object):
          chunk.clock_end,
          chunk.concat) = result
         return chunk
-
 
     def chunk_save(self, chunk):
         '''Insert or update info in chunk table'''
@@ -506,10 +489,10 @@ class SqlManager(object):
             self.conn.execute(
                 "UPDATE chunk "
                 "SET block_start = ?,"
-                    "block_size = ?,"
-                    "clock_start = ?,"
-                    "clock_end = ?,"
-                    "concat = ? "
+                "block_size = ?,"
+                "clock_start = ?,"
+                "clock_end = ?,"
+                "concat = ? "
                 "WHERE id = ?",
                 (chunk.block_start,
                  chunk.block_size,
@@ -518,22 +501,18 @@ class SqlManager(object):
                  chunk.concat,
                  chunk.id))
 
-
     def chunk_delete_id(self, chunk_id):
         '''Delete row from chunk table by id'''
         self.conn.execute("DELETE FROM chunk WHERE id = ?",
                           (chunk_id,))
 
-
     def chunk_delete(self, chunk):
         '''Delete row from chunk table by chunk object'''
         self.chunk_delete_id(chunk.id)
 
-
     def chunk_reset(self):
         '''Delete all rows from chunk table'''
         self.conn.execute("DELETE FROM chunk")
-
 
     def chunk_reset_concat(self):
         '''Set concat to null for all rows in chunk table'''
@@ -541,20 +520,17 @@ class SqlManager(object):
             "UPDATE chunk "
             "SET concat = null")
 
-
     def chunk_query_ids(self):
         '''Return iterator for all chunk ids'''
         for result in self.conn.execute(
-            "SELECT id FROM chunk "
-            "ORDER BY clock_start"):
+                "SELECT id FROM chunk "
+                "ORDER BY clock_start"):
             yield result[0]
-
 
     def chunk_query(self):
         '''Return iterator for all chunk objects'''
         for chunk_id in self.chunk_query_ids():
             yield self.chunk_load(chunk_id)
-
 
     def chunk_query_concat(self, chunk):
         '''Return chunk which should be concatenated to the current one'''
@@ -570,23 +546,20 @@ class SqlManager(object):
                                   'chunk for concatenating!')
         return self.chunk_load(result[0])
 
-
     def chunk_fix_multiple_concats(self):
         '''Fix multiple chunks referencing the same chunk in concat field'''
         self.conn.execute(
             "UPDATE chunk "
             "SET concat = null "
             "WHERE id IN "
-             "("
-              "SELECT a.id FROM chunk a "
-              "INNER JOIN chunk b ON a.id != b.id AND a.concat = b.concat"
-             ")")
-
+            "("
+            "SELECT a.id FROM chunk a "
+            "INNER JOIN chunk b ON a.id != b.id AND a.concat = b.concat"
+            ")")
 
     def state_reset(self):
         '''Delete all entries of state table'''
         self.conn.execute("DELETE FROM state")
-
 
     def state_query(self, key):
         '''Return value of state by key'''
@@ -598,14 +571,12 @@ class SqlManager(object):
             return None
         return result[0]
 
-
     def state_delete(self, key):
         '''Delete entry in state table by key'''
         self.conn.execute(
             "DELETE from state "
             "WHERE key = ?",
             (key,))
-
 
     def state_insert(self, key, value):
         '''Insert key/value pair into state table'''
@@ -614,11 +585,9 @@ class SqlManager(object):
             "VALUES (?, ?)",
             (key, value))
 
-
     def setting_reset(self):
         '''Delete all entries of setting table'''
         self.conn.execute("DELETE FROM setting")
-
 
     def setting_query(self, key):
         '''Return value of setting by key'''
@@ -630,14 +599,12 @@ class SqlManager(object):
             return None
         return result[0]
 
-
     def setting_delete(self, key):
         '''Delete entry in setting table by key'''
         self.conn.execute(
             "DELETE from setting "
             "WHERE key = ?",
             (key,))
-
 
     def setting_insert(self, key, value):
         '''Insert key/value pair into setting table'''
@@ -670,7 +637,6 @@ class ChunkFactory(object):
         self.reader = reader
         self.input_blocks = int(self.reader.get_size() / self.blocksize)
 
-
     def save_state(self):
         if self.chunk is None:
             block_start = None
@@ -695,7 +661,6 @@ class ChunkFactory(object):
             self.timer_all.elapsed())
         self.db_manager.commit()
 
-
     def load_state(self):
         current_block = self.db_manager.state_query('current_block')
         block_start = self.db_manager.state_query('block_start')
@@ -712,7 +677,6 @@ class ChunkFactory(object):
         if time_elapsed is not None:
             self.timer_all.timecode -= time_elapsed
 
-
     def check_timer(self):
         '''Print statistics and save state if timer elapses'''
         delta = self.timer.elapsed()
@@ -723,20 +687,19 @@ class ChunkFactory(object):
 
             chunk_count = self.db_manager.chunk_count()
             speed = float(self.current_block - self.timer_blocks) \
-                        / float(delta)
-            print '[%5.1f%%] %i/%i blocks (%.1f bl/s; ' \
+                    / float(delta)
+            print('[%5.1f%%] %i/%i blocks (%.1f bl/s; ' \
                   '%.1f MiB/s): %i chunks' % \
                   (
-                    float(self.current_block) /
-                        float(self.input_blocks) * 100.0,
-                    self.current_block,
-                    self.input_blocks,
-                    speed,
-                    float(speed * self.blocksize) / float(1024**2),
-                    chunk_count
-                  )
+                      float(self.current_block) /
+                      float(self.input_blocks) * 100.0,
+                      self.current_block,
+                      self.input_blocks,
+                      speed,
+                      float(speed * self.blocksize) / float(1024 ** 2),
+                      chunk_count
+                  ))
             self.timer_blocks = self.current_block
-
 
     def finished(self):
         '''Print statistics and commit changes after finishing'''
@@ -746,15 +709,14 @@ class ChunkFactory(object):
         delta = self.timer_all.elapsed()
         chunk_count = self.db_manager.chunk_count()
         speed = float(self.current_block + 1) / float(delta)
-        print
-        print 'Finished.'
-        print 'Read %i of %i blocks.' % (self.current_block ,
-                                         self.input_blocks)
-        print 'Found %i chunks.' % chunk_count
-        print 'Took %.2f seconds.' % delta
-        print 'Average speed was %.1f blocks/s (%.1f MiB/s).' % \
-              (speed, float(speed * self.blocksize) / float(1024**2))
-
+        print()
+        print('Finished.')
+        print('Read %i of %i blocks.' % (self.current_block,
+                                         self.input_blocks))
+        print('Found %i chunks.' % chunk_count)
+        print('Took %.2f seconds.' % delta)
+        print('Average speed was %.1f blocks/s (%.1f MiB/s).' % \
+              (speed, float(speed * self.blocksize) / float(1024 ** 2)))
 
     def mpeg_header(self, buf):
         '''Check if buffer is mpeg header and return system clock or None'''
@@ -781,64 +743,63 @@ class ChunkFactory(object):
         # SCR -> 90 kHz Timer
         #
         # See http://en.wikipedia.org/wiki/MPEG_program_stream#Coding_structure
-        if ((ord(buf[0]) != 0x00) or
-            (ord(buf[1]) != 0x00) or
-            (ord(buf[2]) != 0x01) or
-            (ord(buf[3]) != 0xBA)):
+        if ((buf[0] != 0x00) or
+                (buf[1] != 0x00) or
+                (buf[2] != 0x01) or
+                (buf[3] != 0xBA)):
             return None
 
-        marker_bit_1 = (ord(buf[4]) >> 6) & 3
-        marker_bit_2 = (ord(buf[4]) >> 2) & 1
-        marker_bit_3 = (ord(buf[6]) >> 2) & 1
-        marker_bit_4 = (ord(buf[8]) >> 2) & 1
+        marker_bit_1 = (buf[4] >> 6) & 3
+        marker_bit_2 = (buf[4] >> 2) & 1
+        marker_bit_3 = (buf[6] >> 2) & 1
+        marker_bit_4 = (buf[8] >> 2) & 1
 
         if ((marker_bit_1 != 1) or
-            (marker_bit_2 != 1) or
-            (marker_bit_3 != 1) or
-            (marker_bit_4 != 1)):
+                (marker_bit_2 != 1) or
+                (marker_bit_3 != 1) or
+                (marker_bit_4 != 1)):
             return None
 
         clock_bits = [None] * 33
 
-        clock_bits[32] = (ord(buf[4]) >> 5) & 1;
-        clock_bits[31] = (ord(buf[4]) >> 4) & 1;
-        clock_bits[30] = (ord(buf[4]) >> 3) & 1;
-        clock_bits[29] = (ord(buf[4]) >> 1) & 1;
-        clock_bits[28] = (ord(buf[4]) >> 0) & 1;
-        clock_bits[27] = (ord(buf[5]) >> 7) & 1;
-        clock_bits[26] = (ord(buf[5]) >> 6) & 1;
-        clock_bits[25] = (ord(buf[5]) >> 5) & 1;
-        clock_bits[24] = (ord(buf[5]) >> 4) & 1;
-        clock_bits[23] = (ord(buf[5]) >> 3) & 1;
-        clock_bits[22] = (ord(buf[5]) >> 2) & 1;
-        clock_bits[21] = (ord(buf[5]) >> 1) & 1;
-        clock_bits[20] = (ord(buf[5]) >> 0) & 1;
-        clock_bits[19] = (ord(buf[6]) >> 7) & 1;
-        clock_bits[18] = (ord(buf[6]) >> 6) & 1;
-        clock_bits[17] = (ord(buf[6]) >> 5) & 1;
-        clock_bits[16] = (ord(buf[6]) >> 4) & 1;
-        clock_bits[15] = (ord(buf[6]) >> 3) & 1;
-        clock_bits[14] = (ord(buf[6]) >> 1) & 1;
-        clock_bits[13] = (ord(buf[6]) >> 0) & 1;
-        clock_bits[12] = (ord(buf[7]) >> 7) & 1;
-        clock_bits[11] = (ord(buf[7]) >> 6) & 1;
-        clock_bits[10] = (ord(buf[7]) >> 5) & 1;
-        clock_bits[ 9] = (ord(buf[7]) >> 4) & 1;
-        clock_bits[ 8] = (ord(buf[7]) >> 3) & 1;
-        clock_bits[ 7] = (ord(buf[7]) >> 2) & 1;
-        clock_bits[ 6] = (ord(buf[7]) >> 1) & 1;
-        clock_bits[ 5] = (ord(buf[7]) >> 0) & 1;
-        clock_bits[ 4] = (ord(buf[8]) >> 7) & 1;
-        clock_bits[ 3] = (ord(buf[8]) >> 6) & 1;
-        clock_bits[ 2] = (ord(buf[8]) >> 5) & 1;
-        clock_bits[ 1] = (ord(buf[8]) >> 4) & 1;
-        clock_bits[ 0] = (ord(buf[8]) >> 3) & 1;
+        clock_bits[32] = (buf[4] >> 5) & 1
+        clock_bits[31] = (buf[4] >> 4) & 1
+        clock_bits[30] = (buf[4] >> 3) & 1
+        clock_bits[29] = (buf[4] >> 1) & 1;
+        clock_bits[28] = (buf[4] >> 0) & 1;
+        clock_bits[27] = (buf[5] >> 7) & 1;
+        clock_bits[26] = (buf[5] >> 6) & 1;
+        clock_bits[25] = (buf[5] >> 5) & 1;
+        clock_bits[24] = (buf[5] >> 4) & 1;
+        clock_bits[23] = (buf[5] >> 3) & 1;
+        clock_bits[22] = (buf[5] >> 2) & 1;
+        clock_bits[21] = (buf[5] >> 1) & 1;
+        clock_bits[20] = (buf[5] >> 0) & 1;
+        clock_bits[19] = (buf[6] >> 7) & 1;
+        clock_bits[18] = (buf[6] >> 6) & 1;
+        clock_bits[17] = (buf[6] >> 5) & 1;
+        clock_bits[16] = (buf[6] >> 4) & 1;
+        clock_bits[15] = (buf[6] >> 3) & 1;
+        clock_bits[14] = (buf[6] >> 1) & 1;
+        clock_bits[13] = (buf[6] >> 0) & 1;
+        clock_bits[12] = (buf[7] >> 7) & 1;
+        clock_bits[11] = (buf[7] >> 6) & 1;
+        clock_bits[10] = (buf[7] >> 5) & 1;
+        clock_bits[9] = (buf[7] >> 4) & 1;
+        clock_bits[8] = (buf[7] >> 3) & 1;
+        clock_bits[7] = (buf[7] >> 2) & 1;
+        clock_bits[6] = (buf[7] >> 1) & 1;
+        clock_bits[5] = (buf[7] >> 0) & 1;
+        clock_bits[4] = (buf[8] >> 7) & 1;
+        clock_bits[3] = (buf[8] >> 6) & 1;
+        clock_bits[2] = (buf[8] >> 5) & 1;
+        clock_bits[1] = (buf[8] >> 4) & 1;
+        clock_bits[0] = (buf[8] >> 3) & 1;
 
         clock = 0
-        for i in range(0,33):
-            clock += clock_bits[i] * 2**i
+        for i in range(0, 33):
+            clock += clock_bits[i] * 2 ** i
         return clock
-
 
     def split(self):
         '''End current chunk and start a new one'''
@@ -850,7 +811,6 @@ class ChunkFactory(object):
             if (self.chunk.block_size >= self.min_chunk_size):
                 self.db_manager.chunk_save(self.chunk)
             self.chunk = None
-
 
     def run(self):
         '''Main function for this class'''
@@ -867,8 +827,8 @@ class ChunkFactory(object):
         self.db_manager.state_reset()
         self.timer_blocks = self.current_block
         self.reader.seek(self.current_block * self.blocksize)
-        for self.current_block in xrange(self.current_block,
-                                         self.input_blocks):
+        for self.current_block in range(self.current_block,
+                                        self.input_blocks):
             self.check_timer()
             buf = self.reader.read(self.blocksize)
             if len(buf) != self.blocksize:
@@ -897,7 +857,6 @@ class ChunkFactory(object):
         self.finished()
 
 
-
 class Main(object):
     '''Main class for this application'''
     __slots__ = ('input_filenames', 'db_filename', 'export_dir', 'blocksize',
@@ -915,7 +874,6 @@ class Main(object):
 
         self.db_manager = SqlManager()
 
-
     def load_settings(self):
         '''Load all settings and set class attributes'''
         self.input_filenames = self.db_manager.setting_query('input_filenames')
@@ -932,17 +890,15 @@ class Main(object):
         if self.blocksize is None:
             self.blocksize = 2048
         if self.min_chunk_size is None:
-            self.min_chunk_size = 25600 # 50 MiB
+            self.min_chunk_size = 25600  # 50 MiB
         if self.max_create_gap is None:
-            self.max_create_gap = 90000 # 1 second
+            self.max_create_gap = 90000  # 1 second
         if self.max_sort_gap is None:
-            self.max_sort_gap = 90000 # 1 second
-
+            self.max_sort_gap = 90000  # 1 second
 
     def usage(self):
         '''Print usage message'''
-        print __doc__
-
+        print(__doc__)
 
     def setup(self):
         args = sys.argv[2:]
@@ -951,28 +907,28 @@ class Main(object):
             args.append('show')
 
         if (args[0] == 'input') and (len(args) > 1):
-            args[0:2] = (args[0] + ' '+ args[1],)
+            args[0:2] = (args[0] + ' ' + args[1],)
 
         parameters = {
-                'show': 0,
-                'reset': 0,
-                'input add': 1,
-                'input del': 1,
-                'input clear': 0,
-                'blocksize': 1,
-                'min_chunk_size': 1,
-                'max_create_gap': 1,
-                'max_sort_gap': 1,
-                'export_dir': 1,
-            }
+            'show': 0,
+            'reset': 0,
+            'input add': 1,
+            'input del': 1,
+            'input clear': 0,
+            'blocksize': 1,
+            'min_chunk_size': 1,
+            'max_create_gap': 1,
+            'max_sort_gap': 1,
+            'export_dir': 1,
+        }
 
         if args[0] not in parameters:
-            print 'Unknown argument: %s' % args[0]
+            print('Unknown argument: %s' % args[0])
             return
 
         if len(args) - 1 != parameters[args[0]]:
-            print ('Invalid argument count -- parameter "%s" '
-                   'expects %i argument(s).') % (args[0], parameters[args[0]])
+            print(('Invalid argument count -- parameter "%s" '
+                   'expects %i argument(s).') % (args[0], parameters[args[0]]))
             return
 
         if args[0] in ('blocksize', 'min_chunk_size', 'max_create_gap',
@@ -988,23 +944,23 @@ class Main(object):
             else:
                 self.input_filenames.remove(args[1])
             if len(self.input_filenames) > 0:
-                binary = buffer('\0'.join(self.input_filenames))
+                input_filestring = '\0'.join(self.input_filenames)
             else:
-                binary = None
-            self.db_manager.setting_insert('input_filenames', binary)
+                input_filestring = None
+
+            self.db_manager.setting_insert('input_filenames', input_filestring)
         elif args[0] == 'show':
             for filename in self.input_filenames:
-                print 'input_file:', filename
+                print('input_file:', filename)
             if len(self.input_filenames) == 0:
-                print 'No input files specified!'
-            print 'export_dir:', self.export_dir
-            print 'blocksize:', self.blocksize
-            print 'min_chunk_size:', self.min_chunk_size
-            print 'max_create_gap:', self.max_create_gap
-            print 'max_sort_gap:', self.max_sort_gap
+                print('No input files specified!')
+            print('export_dir:', self.export_dir)
+            print('blocksize:', self.blocksize)
+            print('min_chunk_size:', self.min_chunk_size)
+            print('max_create_gap:', self.max_create_gap)
+            print('max_sort_gap:', self.max_sort_gap)
         elif args[0] == 'reset':
             self.db_manager.setting_reset()
-
 
     def create(self):
         '''Find all chunks in input file and write them to chunk file'''
@@ -1012,7 +968,6 @@ class Main(object):
         cf = ChunkFactory(self, reader)
         cf.run()
         reader.close()
-
 
     def sort(self):
         '''Sort chunks and try to concatenate parts of the same recording'''
@@ -1036,17 +991,14 @@ class Main(object):
                 self.db_manager.chunk_save(chunk2)
         self.db_manager.chunk_fix_multiple_concats();
 
-
     def reset(self):
         '''Sort chunks by block_start and clear concat attribute'''
         self.db_manager.chunk_reset_concat()
-
 
     def clear(self):
         '''Delete all chunks'''
         self.db_manager.chunk_reset()
         self.db_manager.state_reset()
-
 
     def show(self):
         '''Dump chunk list file in a human readable way'''
@@ -1056,12 +1008,12 @@ class Main(object):
                                                               'Clock Start',
                                                               'Clock End',
                                                               'Concatenate')
-        print header_lines
-        print header_captions
-        print header_lines
+        print(header_lines)
+        print(header_captions)
+        print(header_lines)
 
-        fstr        = ' ' + '| %12i ' * 4 + '| %10s'
-        fstr_main   = '%4i' + fstr
+        fstr = ' ' + '| %12i ' * 4 + '| %10s'
+        fstr_main = '%4i' + fstr
         fstr_concat = '%4s' + fstr
 
         chunk_tuple = lambda x, y: (y,
@@ -1074,50 +1026,50 @@ class Main(object):
         for chunk in self.db_manager.chunk_query():
             if chunk.concat is not None:
                 continue
-            print fstr_main % chunk_tuple(chunk, index)
+            print(fstr_main % chunk_tuple(chunk, index))
 
             def process_concats(chunk):
                 chunk2 = self.db_manager.chunk_query_concat(chunk)
                 if chunk2 is not None:
-                    print fstr_concat % chunk_tuple(chunk2, '#')
+                    print(fstr_concat % chunk_tuple(chunk2, '#'))
                     process_concats(chunk2)
 
             process_concats(chunk)
             index += 1
 
-
     def export(self):
         '''export single chunk or all chunks'''
+
         def export_chunk(reader, outf, chunk, part):
             '''Write chunk and concats to output file'''
             timer = Timer()
             reader.seek(chunk.block_start * self.blocksize)
-            for i in xrange(0, chunk.block_size):
+            for i in range(0, chunk.block_size):
                 buf = reader.read(self.blocksize)
                 if len(buf) != self.blocksize:
                     raise UnexpectedResultError('len(buf) != self.blocksize')
                 outf.write(buf)
             delta = timer.elapsed()
             speed = float(chunk.block_size) / float(delta)
-            print 'Part #%i: %.2fs (%.2f blocks/s; %.2f MiB/s).' % \
+            print('Part #%i: %.2fs (%.2f blocks/s; %.2f MiB/s).' % \
                   (part,
                    delta,
                    speed,
-                   float(speed * self.blocksize) / float(1024**2))
+                   float(speed * self.blocksize) / float(1024 ** 2)))
             chunk2 = self.db_manager.chunk_query_concat(chunk)
             if chunk2 is not None:
-                export_chunk(reader, outf, chunk2, part+1)
+                export_chunk(reader, outf, chunk2, part + 1)
 
         def export_file(chunk, index):
             '''Open output file and write chunks'''
-            print 'Exporting file #%i' % index
+            print('Exporting file #%i' % index)
             reader = FileReader(self.input_filenames)
             outf = open(os.path.join(self.export_dir, 'file_%04i.mpg' % index),
                         'wb')
             export_chunk(reader, outf, chunk, 1)
             outf.close()
             reader.close()
-            print
+            print()
 
         if len(sys.argv) < 3:
             # no special chunk specified -> export all
@@ -1138,7 +1090,6 @@ class Main(object):
             if not found:
                 raise ExportError('Incorrect chunk specified!')
 
-
     def run(self):
         '''Run the main program'''
         if len(sys.argv) < 2:
@@ -1155,9 +1106,8 @@ class Main(object):
             self.usage()
 
 
-
 if __name__ == '__main__':
     try:
         Main().run()
     except KeyboardInterrupt:
-        print '\nKeyboardInterrupt'
+        print('\nKeyboardInterrupt')
