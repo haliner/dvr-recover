@@ -58,6 +58,8 @@ System Requirements
 To run the script you need a Python interpreter (2.x, tested with 2.5 and
 higher).
 
+This script now also works with Python 3 (tested with 3.10).
+
 
 Usage
 -----
